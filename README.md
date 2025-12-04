@@ -5,6 +5,7 @@ This repository contains 14 video interview sessions with Dr. Tim Davis (Texas A
 ## Series Overview
 
 The interviews span from May 2024 to January 2025, progressively building understanding from foundational concepts to advanced implementation details. Topics include matrix storage formats, the five kernel types, JIT compilation infrastructure, and specific algorithm implementations for operations like transpose, reduce, apply, and element-wise operations.
+More sessions are planned in the future.
 
 ---
 
@@ -42,7 +43,7 @@ The interviews span from May 2024 to January 2025, progressively building unders
 | Session | Date | Topics | Link |
 |---------|------|--------|------|
 | **Session 13** | November 8, 2024 | Element-wise add vs union, format-agnostic design, debugging infrastructure, factory vs JIT | [Summary](Session13/SUMMARY.md) |
-| **Session 14** | January 10, 2025 | 32/64-bit integer infrastructure, workspace management (verk), parallelism strategies, task slicing | [Summary](Session14/SUMMARY.md) |
+| **Session 14** | January 10, 2025 | 32/64-bit integer infrastructure, workspace management (Werk), parallelism strategies, task slicing | [Summary](Session14/SUMMARY.md) |
 
 ---
 

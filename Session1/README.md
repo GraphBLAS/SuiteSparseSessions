@@ -24,7 +24,7 @@ Interview with Dr. Tim Davis about SuiteSparse GraphBLAS code organization and a
   - [Monoid Macros](#monoid-macros-011300)
   - [Generic Kernel Macros](#generic-kernel-macros-014800)
 - [Workspace Management](#workspace-management)
-  - [Verk Space](#verk-space-005120)
+  - [Werk Space](#Werk-space-005120)
 - [API & Spec Issues](#api--spec-issues)
   - [C Scalars Problem](#c-scalars-problem-015200)
   - [Reduce to Scalar API](#reduce-to-scalar-api-015005)
@@ -54,16 +54,12 @@ Dr. Davis has recently reorganized the GraphBLAS source code from a single flat 
 - Now: Organized into logical modules with subdirectories (apply, assign, reduce, mxm, etc.)
 - Each module contains three consistent subdirectories: `factory/`, `include/`, and `template/`
 
-**Quote:** "What I've done is actually, you can see it here on this get push. I'm moving files around because I used to have all my source files for every method just packed together in one big source file. That's just too hard to navigate even. It's getting hard for me."
-
 ### File Organization Conventions [00:02:22]
 
 **Template Files:**
 - Use `#include` to include template source code
 - Naming convention: Files in `template/` subdirectories
 - Distinction: `.h` files are headers, template files are included for code generation
-
-**Quote:** "You'll be able to look at the include statement to know what it is I'm doing. This is a template because it's got it in the name."
 
 ### Module Structure [00:11:00]
 
@@ -76,14 +72,12 @@ Each module represents a GraphBLAS operation (apply, assign, reduce, mxm, etc.).
 
 ### Code Generation System [00:34:00]
 
-GraphBLAS uses Matlab scripts to generate factory kernels at development time.
+GraphBLAS uses MATLAB scripts to generate factory kernels at development time.
 
 **Statistics:**
 - Factory kernels: ~750,000 lines of generated C code
-- Generator code: Only ~4,600 lines of Matlab
+- Generator code: Only ~4,600 lines of MATLAB
 - Result: 22,000+ factory kernel files
-
-**Quote:** "I don't count this when I say how big is graph loss. I don't count this 3 quarter 1 million. Okay, I count this. That's important. I don't count this because that's all generated."
 
 ### Five Types of Kernels [00:05:30]
 
@@ -93,7 +87,7 @@ GraphBLAS uses Matlab scripts to generate factory kernels at development time.
 4. **CUDA JIT kernels**: GPU kernels with same architecture as CPU JIT
 5. **Generic kernels**: Slowest fallback using function pointers and memcpy for everything
 
-**Quote:** "Every multiply, every add, every typecast, even typecast double to int is through a function call pointer."
+**Quote:** "For a generic kernel, every multiply, every add, every typecast, even typecast double to int is through a function call pointer.  They are slow, but allow GraphBLAS to compute any operation without the need to shell out to a compiler for the JIT.  Some platforms can't do that (the Apple iPad) and some end-user applications will not want to allow it.  To get good performance, an application developer can run the app in a development and allow GraphBLAS to compile its JIT kernels.  Then those JIT kernels can be converted into Pre-JIT kernels, which I'll describe later."
 
 ## Kernel Selection & Execution Flow
 
@@ -109,7 +103,7 @@ The execution flow for `GrB_reduce` demonstrates the kernel selection hierarchy:
 6. **CPU JIT kernel**: Compile or load specialized kernel [01:24:00]
 7. **Generic kernel**: Final fallback using function pointers [01:47:00]
 
-**Quote:** "Kuda gets the first dibs on the problem. Kuda can say, go away, do it on the CPU because it's iso, or it has too many zombies, or it's a tiny amount of work."
+**Quote:** "CUDA gets the first dibs on the problem. The CUDA heuristic can choose to do it on the CPU because it's iso, or it has too many zombies, or it's a tiny amount of work."
 
 ## JIT System Architecture
 
@@ -120,13 +114,11 @@ The execution flow for `GrB_reduce` demonstrates the kernel selection hierarchy:
 - Hash value computed for quick lookup in hash table
 - JIT loader checks hash table before compiling
 
-**Quote:** "I have to first encode it. Then I pass it to the jitifier that's gonna load. This is maybe a misnomer. It's gonna either look it up in the hash table and realize, I won't dive into the jitifier."
-
 ### JIT Package Location [01:29:00]
 
-- Default location: `~/.suitesparse/` (or Windows equivalent)
+- Default location: `~/.Suitesparse/` (or Windows equivalent)
 - Version-specific: Each GraphBLAS version gets its own cache
-- Two subdirectories: `source/` for generated C files, `lib/` for compiled binaries
+- Two subdirectories: `src/` for generated C files, `lib/` for compiled binaries
 
 ### Pre-JIT Kernels [01:42:00]
 
@@ -145,11 +137,11 @@ Users can "pre-compile" JIT kernels into the library:
 Matrices can have three types of pending work:
 - **Zombies**: Pending deletions
 - **Pending tuples**: Pending insertions
-- **Jumbled**: Entries not in sorted order
+- **Jumbled**: Entries not in sorted order in any given row/column
 
 Operations can be tolerant of these states (e.g., reduce to scalar doesn't need sorted entries).
 
-**Quote:** "The reduce to scalar is tolerant of zombies. It'll just skip over them, and it doesn't care if the entries in every row are in ascending order of column index."
+**Quote:** "The reduce to scalar is tolerant of zombies. It'll just skip over them, and it doesn't care if the entries in every row are in ascending order of column index, so the input matrix can stay jumbled."
 
 ### Iso-Valued Matrices [01:05:40]
 
@@ -180,7 +172,7 @@ Factory and JIT kernels use extensive macro systems to specialize operations. Ea
 - `GB_UPDATE`: In-place update operation
 - `GB_IDENTITY`: Identity value
 - `GB_TERMINAL`: Early-exit value for terminal monoids
-- Panel size optimizations
+- Panel size optimizations for reduce-to-scalar
 
 **Example comparison:**
 - Plus monoid: `z += y`
@@ -195,7 +187,7 @@ Generic kernels use the same templates as factory/JIT but with slower implementa
 
 ## Workspace Management
 
-### Verk Space [00:51:20]
+### Werk Space [00:51:20]
 
 GraphBLAS uses a statically-allocated workspace on the stack:
 - Size: ~32KB
@@ -203,7 +195,9 @@ GraphBLAS uses a statically-allocated workspace on the stack:
 - Managed with push/pop mechanism
 - Used for scalars, small thread-local arrays
 
-**Etymology note:** "verk" is German for "work" - naming plays on "workspace" → "werkspace" → "verk"
+**Etymology note:** "Werk" is German for "work" - naming plays on "workspace" → "Werkspace" → "Werk".
+It is pronounced as "verk".  I use the word to make it easier to grep the source code to find
+where the Werkspace is used.
 
 ## API & Spec Issues
 
@@ -216,7 +210,7 @@ The GraphBLAS C API has extensive bloat from supporting both `GrB_Scalar` and C 
 - Massive macro complexity for polymorphic dispatch
 - Complex switch cases for type checking
 
-**Quote:** "C Scalars should be banished forever from all GraphBLAS methods. Look at that bloat... It's ridiculous. And look at these switch cases. This is the macro I have to use."
+**Quote:** "C Scalars should be banished forever from all GraphBLAS methods, but that would require a backward-breaking change to the C API."
 
 **Proposal:** Remove C scalar support in GraphBLAS 3.0, use only `GrB_Scalar` objects.
 
@@ -229,13 +223,13 @@ Unlike other GraphBLAS operations, reduce to scalar has no mask parameter (scala
 GraphBLAS testing uses a dual-implementation approach:
 
 **Method:**
-1. Implement entire GraphBLAS spec in "slow" Matlab
+1. Implement entire GraphBLAS spec in "slow" MATLAB
 2. Store matrices as two dense matrices (values + presence boolean)
-3. Call both C library and Matlab implementation
+3. Call both C library and MATLAB implementation
 4. Compare results with `isequal`
 5. Use for statement coverage testing
 
-**Quote:** "I wrote the whole graph last spec as raw Matlab. It's super slow, it's not efficient. It's a hack. I don't care... but it works and is correct."
+**Quote:** "I wrote the whole GraphBLAS spec as raw MATLAB. It's super slow, it's not efficient, but it is simple, easy to understand, and thus easy to verify visually. I don't care that it's slow, ... but it works and is correct."
 
 ## Build System
 
@@ -244,7 +238,7 @@ GraphBLAS testing uses a dual-implementation approach:
 GraphBLAS can be compiled in "compact mode" to reduce binary size:
 - Disable factory kernels (per-operator, per-type control)
 - Used by FalkorDB for smaller binaries and faster compilation
-- Falls back to generic kernels (slower but functional)
+- Falls back to JIT (fast, but requires a compiler) or generic kernels (slower but functional)
 
 ### CMake Configuration [00:44:00]
 
@@ -304,11 +298,10 @@ Some monoids can short-circuit (e.g., logical AND):
 
 **Quote:** "The moment you see a false, we can stop... Some algorithms, particularly reduced to scalar, are going to exploit that and check, and we'll quit the work early."
 
-## Compile Time Statistics
+## Code Size Statistics
 
 - Total GraphBLAS source: ~16,000 lines for mxm alone
 - Factory kernels: ~750,000 lines (generated from 4,600 lines)
 - Reduction module: ~1,000 lines
 - Matrix clear: 91 lines (simplest module)
-- Pre-JIT can bake in ~474 kernels from one application run
 

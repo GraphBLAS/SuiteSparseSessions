@@ -11,8 +11,8 @@
   - [New Matrix Integer Types](#new-matrix-integer-types-001620)
   - [Macro-based Type Handling](#macro-based-type-handling-004247)
   - [GB_GET/GB_SET/GB_INC Macros](#gb_getgb_setgb_inc-macros-004333)
-- [Workspace Management ("Verk")](#workspace-management-verk)
-  - [The Verk Data Structure](#the-verk-data-structure-004703)
+- [Workspace Management ("Werk")](#workspace-management-Werk)
+  - [The Werk Data Structure](#the-Werk-data-structure-004703)
   - [Stack-based Workspace with Push/Pop](#stack-based-workspace-with-pushpop-005536)
   - [Microsoft Compiler Limitations](#microsoft-compiler-limitations-005908)
 - [Debug Infrastructure](#debug-infrastructure)
@@ -145,28 +145,28 @@ In JIT kernels, these macros compile to direct array access with no branching.
 - [00:43:33] - Macro examples
 - [00:45:03] - JIT kernel optimization
 
-## Workspace Management ("Verk")
+## Workspace Management ("Werk")
 
-### The Verk Data Structure [00:47:03]
+### The Werk Data Structure [00:47:03]
 
 **Discussion:**
-The "verk" (German-inspired name for "work") is a workspace structure that serves three purposes:
+The "Werk" (German-inspired name for "work") is a workspace structure that serves three purposes:
 1. Small stack-based workspace (16KB)
 2. Error handling setup (logger, error messages)
 3. Integer control settings (P/J/I control for 32/64-bit decisions)
 
 **Key Quote:**
-> "I named it this way, not because I'm making fun of the German work, but I wanted to have a workspace that I could look for easily and grep for it. I use the word work all over the place, so let's make it 'verk' and then I can grab for it." [00:47:43]
+> "I named it this way, not because I'm making fun of the German work, but I wanted to have a workspace that I could look for easily and grep for it. I use the word work all over the place, so let's make it 'Werk' and then I can grep for it." [00:47:43]
 
 **Timestamps:**
-- [00:47:03] - Verk introduction
+- [00:47:03] - Werk introduction
 - [00:51:05] - Data structure details
 - [00:53:23] - Integer control explanation
 
 ### Stack-based Workspace with Push/Pop [00:55:36]
 
 **Discussion:**
-The verk provides a 16KB static workspace with push/pop operations to avoid malloc overhead for small temporary arrays. This approach reduces malloc calls, which is important for languages like Julia that track allocations.
+The Werk provides a 16KB static workspace with push/pop operations to avoid malloc overhead for small temporary arrays. This approach reduces malloc calls, which is important for languages like Julia that track allocations.
 
 **Key Quote:**
 > "I could just malloc this thing. But then there's more mallocs and frees going along, and codes like Julia don't like to see lots of mallocs. They like to see as few mallocs as possible. So I reduced this by putting this little tiny space." [00:55:15]
@@ -178,7 +178,7 @@ The verk provides a 16KB static workspace with push/pop operations to avoid mall
 ### Microsoft Compiler Limitations [00:59:08]
 
 **Discussion:**
-The entire verk workspace system was necessitated by Microsoft's C compiler not supporting variable-length arrays (VLAs), a standard C99 feature. This forced creation of a manual stack implementation.
+The entire Werk workspace system was necessitated by Microsoft's C compiler not supporting variable-length arrays (VLAs), a standard C99 feature. This forced creation of a manual stack implementation.
 
 **Key Quote:**
 > "All I would do is just say 'work[3 times n_tasks plus one]' - there, full stop. Just use a variable length array in C. It's fine. Little compiler will just say 'here, sure, go for it.' Microsoft says, 'what is that?' It doesn't support it." [00:58:43]
@@ -457,7 +457,7 @@ The EY_slice method is used by at least 12 different GraphBLAS operations: eleme
 
 5. **Microsoft Compiler Impact**: Lack of VLA support forced creation of custom workspace management, affecting code throughout GraphBLAS
 
-6. **Code Reuse**: Core infrastructure like task management, slicing algorithms, and the verk workspace are shared across many different GraphBLAS operations
+6. **Code Reuse**: Core infrastructure like task management, slicing algorithms, and the Werk workspace are shared across many different GraphBLAS operations
 
 **Final Note [02:14:29]:**
 > "You haven't even seen the matrix multiply yet - it's even trickier than this. It uses the same task struct but builds the task in a totally different way."
