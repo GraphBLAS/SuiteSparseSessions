@@ -13,37 +13,37 @@ More sessions are planned in the future.
 
 ### Foundational Sessions
 
-| Session | Date | Topics | Link |
-|---------|------|--------|------|
-| **Session 1** | May 28, 2024 | Code organization, 5 kernel types, JIT system intro, data structures overview | [Summary](Session1/SUMMARY.md) |
-| **Session 2** | June 4, 2024 | Matrix/vector object structure, storage formats (Full/Bitmap/Sparse/Hypersparse), zombies & pending tuples | [Summary](Session2/SUMMARY.md) |
-| **Session 3** | June 11, 2024 | Hyper hash data structure, format conversions, matrix multiply variants overview | [Summary](Session3/SUMMARY.md) |
+| Video | Session | Date | Topics | Link |
+|-------|---------|------|--------|------|
+| [![Session 1](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk) | **Session 1** | May 28, 2024 | Code organization, 5 kernel types, JIT system intro, data structures overview | [Summary](Session1/README.md) |
+| [![Session 2](https://img.youtube.com/vi/Am0QfqAFHqs/default.jpg)](https://www.youtube.com/watch?v=Am0QfqAFHqs) | **Session 2** | June 4, 2024 | Matrix/vector object structure, storage formats (Full/Bitmap/Sparse/Hypersparse), zombies & pending tuples | [Summary](Session2/README.md) |
+| [![Session 3](https://img.youtube.com/vi/Pfy5hAsc85Q/default.jpg)](https://www.youtube.com/watch?v=Pfy5hAsc85Q) | **Session 3** | June 11, 2024 | Hyper hash data structure, format conversions, matrix multiply variants overview | [Summary](Session3/README.md) |
 
 ### JIT Compilation Deep Dive
 
-| Session | Date | Topics | Link |
-|---------|------|--------|------|
-| **Session 4** | June 17, 2024 | JIT architecture (encodify/jitify/execute), kernel caching, Pre-JIT, CUDA integration | [Summary](Session4/SUMMARY.md) |
-| **Session 5** | June 25, 2024 | JIT control modes, kernel loading, macrification process, binary operators & monoids | [Summary](Session5/SUMMARY.md) |
-| **Session 6** | August 1, 2024 | JIT synchronization, multi-threading/multi-process, macrofy system, error handling | [Summary](Session6/SUMMARY.md) |
-| **Session 7** | August 7, 2024 | Kernel validation, macro system deep dive, type casting, compilation methods | [Summary](Session7/SUMMARY.md) |
+| Video | Session | Date | Topics | Link |
+|-------|---------|------|--------|------|
+| [![Session 4](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA) | **Session 4** | June 17, 2024 | JIT architecture (encodify/jitify/execute), kernel caching, Pre-JIT, CUDA integration | [Summary](Session4/README.md) |
+| [![Session 5](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y) | **Session 5** | June 25, 2024 | JIT control modes, kernel loading, macrification process, binary operators & monoids | [Summary](Session5/README.md) |
+| [![Session 6](https://img.youtube.com/vi/Mb0AspQ2IhE/default.jpg)](https://www.youtube.com/watch?v=Mb0AspQ2IhE) | **Session 6** | August 1, 2024 | JIT synchronization, multi-threading/multi-process, macrofy system, error handling | [Summary](Session6/README.md) |
+| [![Session 7](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ) | **Session 7** | August 7, 2024 | Kernel validation, macro system deep dive, type casting, compilation methods | [Summary](Session7/README.md) |
 
 ### Algorithm Implementations
 
-| Session | Date | Topics | Link |
-|---------|------|--------|------|
-| **Session 8** | August 13, 2024 | GrB_apply operation, parallel execution, factory kernel system, three-tier execution | [Summary](Session8/SUMMARY.md) |
-| **Session 9** | August 19, 2024 | Reduce operations, monoid vs binary operator debate, panel reduction algorithm | [Summary](Session9/SUMMARY.md) |
-| **Session 10** | September 18, 2024 | Transpose algorithms (builder vs bucket), shallow copies, format selection | [Summary](Session10/SUMMARY.md) |
-| **Session 11** | October 2, 2024 | Matrix build process, duplicate handling, 5-phase parallel algorithm, hyperhash | [Summary](Session11/SUMMARY.md) |
-| **Session 12** | October 16, 2024 | Transpose/apply integration, 8 transpose methods, iso-valued optimization | [Summary](Session12/SUMMARY.md) |
+| Video | Session | Date | Topics | Link |
+|-------|---------|------|--------|------|
+| [![Session 8](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y) | **Session 8** | August 13, 2024 | GrB_apply operation, parallel execution, factory kernel system, three-tier execution | [Summary](Session8/README.md) |
+| [![Session 9](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o) | **Session 9** | August 19, 2024 | Reduce operations, monoid vs binary operator debate, panel reduction algorithm | [Summary](Session9/README.md) |
+| [![Session 10](https://img.youtube.com/vi/vDMndSZwSN4/default.jpg)](https://www.youtube.com/watch?v=vDMndSZwSN4) | **Session 10** | September 18, 2024 | Transpose algorithms (builder vs bucket), shallow copies, format selection | [Summary](Session10/README.md) |
+| [![Session 11](https://img.youtube.com/vi/InpR7kaKKbY/default.jpg)](https://www.youtube.com/watch?v=InpR7kaKKbY) | **Session 11** | October 2, 2024 | Matrix build process, duplicate handling, 5-phase parallel algorithm, hyperhash | [Summary](Session11/README.md) |
+| [![Session 12](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc) | **Session 12** | October 16, 2024 | Transpose/apply integration, 8 transpose methods, iso-valued optimization | [Summary](Session12/README.md) |
 
 ### Element-wise Operations
 
-| Session | Date | Topics | Link |
-|---------|------|--------|------|
-| **Session 13** | November 8, 2024 | Element-wise add vs union, format-agnostic design, debugging infrastructure, factory vs JIT | [Summary](Session13/SUMMARY.md) |
-| **Session 14** | January 10, 2025 | 32/64-bit integer infrastructure, workspace management (Werk), parallelism strategies, task slicing | [Summary](Session14/SUMMARY.md) |
+| Video | Session | Date | Topics | Link |
+|-------|---------|------|--------|------|
+| [![Session 13](https://img.youtube.com/vi/YrpTs_qm9MU/default.jpg)](https://www.youtube.com/watch?v=YrpTs_qm9MU) | **Session 13** | November 8, 2024 | Element-wise add vs union, format-agnostic design, debugging infrastructure, factory vs JIT | [Summary](Session13/README.md) |
+| [![Session 14](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc) | **Session 14** | January 10, 2025 | 32/64-bit integer infrastructure, workspace management (Werk), parallelism strategies, task slicing | [Summary](Session14/README.md) |
 
 ---
 
@@ -96,10 +96,10 @@ More sessions are planned in the future.
 
 ```
 TimSessions/
-├── SUMMARY.md          # This file - series overview
+├── README.md           # This file - series overview
 ├── CLAUDE.md           # Claude Code guidance
 ├── Session1/
-│   ├── SUMMARY.md      # Session summary with timestamps
+│   ├── README.md       # Session summary with timestamps
 │   ├── *.vtt           # WebVTT transcript
 │   ├── *.m4a           # Audio recording
 │   └── *.mp4           # Video recording
@@ -120,7 +120,7 @@ To find discussions of specific topics:
 grep -r "hypersparse" Session*//*.vtt
 
 # Search all summaries
-grep -r "JIT" Session*/SUMMARY.md
+grep -r "JIT" Session*/README.md
 ```
 
 Each session summary includes timestamps in `[HH:MM:SS]` format for jumping to specific sections in the video recordings.
