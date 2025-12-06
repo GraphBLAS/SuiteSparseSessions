@@ -42,6 +42,7 @@ This session provides a deep dive into the JIT (Just-In-Time) compilation system
 ## JIT System Architecture
 
 ### JIT Kernel Management [00:00:02]
+[![00:00:02](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=2s)
 
 **Discussion:**
 The session starts with an overview of the core JIT system components: kernel creation, hashing, compilation, loading, and verification.
@@ -57,6 +58,7 @@ The session starts with an overview of the core JIT system components: kernel cr
 ---
 
 ### JIT Control Settings [00:19:40]
+[![00:19:40](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=1180s)
 
 **Discussion:**
 GraphBLAS provides five different JIT control settings that give users fine-grained control over compilation and execution.
@@ -76,6 +78,7 @@ GraphBLAS provides five different JIT control settings that give users fine-grai
 ## Kernel Loading and Compilation
 
 ### The Jitifier Load Process [00:14:17]
+[![00:14:17](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=857s)
 
 **Discussion:**
 The `jitifier_load` function is the main entry point for obtaining a JIT kernel function pointer. Despite its name, it does more than just loading.
@@ -95,6 +98,7 @@ The `jitifier_load` function is the main entry point for obtaining a JIT kernel 
 ---
 
 ### Global State and Concurrency [00:12:16]
+[![00:12:16](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=736s)
 
 **Discussion:**
 The JIT system uses carefully managed global state to track compiled kernels, cache locations, and compiler settings.
@@ -118,6 +122,7 @@ The JIT system uses carefully managed global state to track compiled kernels, ca
 ---
 
 ### File Locking for Multi-Process Safety [00:40:30]
+[![00:40:30](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=2430s)
 
 **Discussion:**
 To handle the case where two different applications might try to compile the same kernel simultaneously, the JIT uses file-based locking.
@@ -135,6 +140,7 @@ To handle the case where two different applications might try to compile the sam
 ## Kernel Creation and Macrification
 
 ### Kernel Families and Encoding [00:34:38]
+[![00:34:38](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=2078s)
 
 **Discussion:**
 Kernels are organized into families (reduce, mxm, apply, etc.), each with specific encoding requirements.
@@ -157,6 +163,7 @@ Kernels are organized into families (reduce, mxm, apply, etc.), each with specif
 ---
 
 ### The Macrification Process [00:36:40]
+[![00:36:40](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=2200s)
 
 **Discussion:**
 Macrification is the process of transforming template code into specialized C code by generating preprocessor macros that define types, operators, and operations.
@@ -176,6 +183,7 @@ Macrification is the process of transforming template code into specialized C co
 ---
 
 ### File Naming Convention [00:37:19]
+[![00:37:19](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=2239s)
 
 **Discussion:**
 JIT kernel files follow a strict naming convention that encodes the kernel type and its specialization.
@@ -202,6 +210,7 @@ GB_jit__reduce__03f31e1
 ---
 
 ### Type Definitions and Macrification [00:51:00]
+[![00:51:00](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=3060s)
 
 **Discussion:**
 User-defined types must be defined twice in the generated code: once as actual C code and once as a string for verification.
@@ -228,6 +237,7 @@ typedef struct { double x, y; } MyCx;
 ## Binary Operators and Monoids
 
 ### Operator Encoding [01:08:00]
+[![01:08:00](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=4080s)
 
 **Discussion:**
 GraphBLAS has 139 different built-in binary operators, each with a unique encoding.
@@ -248,6 +258,7 @@ GraphBLAS has 139 different built-in binary operators, each with a unique encodi
 ---
 
 ### Operator String Generation [01:14:30]
+[![01:14:30](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=4470s)
 
 **Discussion:**
 Each operator can have up to three different string representations for different contexts and platforms.
@@ -274,6 +285,7 @@ z = (x < y) ? x : y;
 ---
 
 ### Operator Flipping for Non-Commutative Operations [01:10:20]
+[![01:10:20](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=4220s)
 
 **Discussion:**
 When matrices are transposed or reordered, non-commutative operators must have their operands flipped.
@@ -291,6 +303,7 @@ When matrices are transposed or reordered, non-commutative operators must have t
 ---
 
 ### Integer Division Edge Cases [01:21:00]
+[![01:21:00](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=4860s)
 
 **Discussion:**
 Integer division requires special handling because C's undefined behavior for division by zero would abort the program.
@@ -314,6 +327,7 @@ Integer division requires special handling because C's undefined behavior for di
 ---
 
 ### Monoid Macrification [01:01:00]
+[![01:01:00](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=3660s)
 
 **Discussion:**
 Monoids require extensive macro definitions for identity values, terminal values, atomics, and SIMD operations.
@@ -335,6 +349,7 @@ Monoids require extensive macro definitions for identity values, terminal values
 ---
 
 ### Shared Definitions and Defaults [01:36:00]
+[![01:36:00](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=5760s)
 
 **Discussion:**
 A shared header file provides default definitions for any macros not defined during macrification.
@@ -355,6 +370,7 @@ A shared header file provides default definitions for any macros not defined dur
 ## Matrix Format Accessors
 
 ### Format-Specific Macros [01:41:50]
+[![01:41:50](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=6110s)
 
 **Discussion:**
 Each matrix gets its own set of accessor macros that abstract away the storage format.
@@ -379,6 +395,7 @@ Each matrix gets its own set of accessor macros that abstract away the storage f
 ## Template Code and Compilation
 
 ### Reduction Template Structure [01:48:00]
+[![01:48:00](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=6480s)
 
 **Discussion:**
 Template files use the generated macros to create specialized kernel implementations.
@@ -403,6 +420,7 @@ Template files use the generated macros to create specialized kernel implementat
 ---
 
 ### Panel-Based Reduction Optimization [01:44:00]
+[![01:44:00](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=6240s)
 
 **Discussion:**
 Panel-based reduction is significantly faster than scalar reduction due to better pipelining.
@@ -430,6 +448,7 @@ Panel-based reduction is significantly faster than scalar reduction due to bette
 ---
 
 ### JIT vs Pre-JIT Kernels [01:51:00]
+[![01:51:00](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=6660s)
 
 **Discussion:**
 The same template code can generate either runtime JIT kernels or compile-time pre-JIT kernels through conditional compilation.
@@ -461,6 +480,7 @@ The same template code can generate either runtime JIT kernels or compile-time p
 ---
 
 ### Query Function Generation [01:54:00]
+[![01:54:00](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=6840s)
 
 **Discussion:**
 Every kernel includes a query function that returns its defining characteristics for verification.

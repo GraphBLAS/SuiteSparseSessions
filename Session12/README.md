@@ -52,6 +52,7 @@ This session focuses on the transpose operation in SuiteSparse GraphBLAS, includ
 ## Transpose and Apply Integration
 
 ### Why Transpose is Fused with Apply [00:00:02]
+[![00:00:02](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=2s)
 The transpose operation is tightly integrated with the apply operation because:
 - Complex conjugate transpose can be done as a single fused operation
 - Typecasting during transpose avoids extra memory passes
@@ -61,6 +62,7 @@ The transpose operation is tightly integrated with the apply operation because:
 **Key quote:** "I wanted to be able to do a complex conjugate transpose fast. That's just an apply with a conjugate operator and a transpose descriptor, one line of code, one line call to GraphBLAS. I should be able to do that as a single fuse operation." [00:20:16]
 
 ### Gb_operator Structure [00:06:00]
+[![00:06:00](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=360s)
 All operator types (unary, binary, index unary, index binary) share the same internal struct:
 - Four function pointers for different operator types
 - OP code indicating which operator variant
@@ -75,6 +77,7 @@ All operator types (unary, binary, index unary, index binary) share the same int
 ## Operator Structure Details
 
 ### Multiple Names Per Object [00:10:00]
+[![00:10:00](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=600s)
 Every operator has two names:
 - Username: Settable via Grb_Name (spec-defined feature)
 - JIT name: Required for code generation, actual function names
@@ -82,6 +85,7 @@ Every operator has two names:
 **Note:** Tim requested something different from the spec committee - he needed function names for the JIT compiler, but got the user-settable name feature instead. [00:10:10]
 
 ### OP Code Organization [00:13:28]
+[![00:13:28](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=808s)
 Operators are organized by numeric ranges:
 - Unary operators: Start at 1 (identity is 2)
 - Index unary: 52-71
@@ -95,6 +99,7 @@ Operators are organized by numeric ranges:
 ## Transpose Implementation Architecture
 
 ### Multiple Entry Points [00:01:26]
+[![00:01:26](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=86s)
 The transpose functionality is accessed from several places:
 - `Grb_transpose`: User-facing method
 - `Gb_transpose`: Internal worker
@@ -102,6 +107,7 @@ The transpose functionality is accessed from several places:
 - From internal methods needing format conversion
 
 ### Cheap vs Expensive Transpose [00:26:00]
+[![00:26:00](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=1560s)
 GraphBLAS can sometimes perform "cheap" (O(1)) transpose operations:
 
 **Case 1: Double transpose**
@@ -117,6 +123,7 @@ If input is CSC and output is CSR (or vice versa), requested transpose becomes a
 ## Transpose Algorithms
 
 ### Overview of Methods [01:10:40]
+[![01:10:40](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=4240s)
 Tim identifies approximately **8 different transpose algorithms**:
 1. Sequential bucket sort
 2. Atomic parallel bucket sort
@@ -128,6 +135,7 @@ Tim identifies approximately **8 different transpose algorithms**:
 8. Row-to-column vector
 
 ### Algorithm Selection Heuristics [01:11:58]
+[![01:11:58](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=4318s)
 
 **Bucket vs Builder Decision:**
 ```
@@ -144,6 +152,7 @@ The fudge factor grows with problem size - builder becomes more attractive as ma
 - "These are highly tuned. For a different machine, this tuning might be off." [01:12:07]
 
 ### Vector Transpose Optimization [01:00:30]
+[![01:00:30](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=3630s)
 
 **Column to Row Vector - The Clever Trick:**
 When transposing a sparse column vector to a row vector:
@@ -160,6 +169,7 @@ When transposing a sparse column vector to a row vector:
 ## Bucket Transpose Details
 
 ### Three Parallel Strategies [01:23:40]
+[![01:23:40](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=5020s)
 
 **1. Sequential** [01:31:51]
 - Single workspace of size n
@@ -188,9 +198,11 @@ When transposing a sparse column vector to a row vector:
 ## Iso-Valued Optimization
 
 ### What is Iso-Valued? [00:50:23]
+[![00:50:23](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=3023s)
 A matrix where all entries share one value - essentially a symbolic/pattern matrix with a single scalar.
 
 ### Six Types of Iso Operations [00:52:24]
+[![00:52:24](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=3144s)
 1. Always returns 1 (one operator)
 2. Returns specific scalar S
 3. Identity with typecast
@@ -207,6 +219,7 @@ A matrix where all entries share one value - essentially a symbolic/pattern matr
 ## Template and JIT System
 
 ### Template Hierarchy [01:26:30]
+[![01:26:30](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=5190s)
 Three core templates for different matrix formats:
 - `Gb_transpose_sparse`: Handles sparse/hypersparse (3 variants: sequential, atomic, non-atomic)
 - `Gb_transpose_bitmap`: Bitmap matrices
@@ -215,6 +228,7 @@ Three core templates for different matrix formats:
 **Problem with bitmap/full:** "These 2 methods I'm not happy with. But they work." Uses div/mod for position calculation instead of proper tiling. [01:30:25]
 
 ### JIT Code Generation [01:38:18]
+[![01:38:18](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=5898s)
 Example: Transpose with bind-second operator
 - Operator is compiled into kernel
 - No runtime function pointer overhead
@@ -228,6 +242,7 @@ Example: Transpose with bind-second operator
 ## Shallow vs Deep Copies
 
 ### Shallow Component Flags [00:38:29]
+[![00:38:29](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=2309s)
 Every matrix has boolean flags indicating which components are shallow:
 - `b_shallow`: Bitmap array
 - `x_shallow`: Values array
@@ -236,6 +251,7 @@ Every matrix has boolean flags indicating which components are shallow:
 - `p_shallow`: Column pointers
 
 ### Rules for Shallow Copies [00:39:40]
+[![00:39:40](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=2380s)
 - Shallow components point to data owned by another matrix
 - Internal temporary matrices can have shallow components
 - Matrices returned to user applications never have shallow components
@@ -248,6 +264,7 @@ Every matrix has boolean flags indicating which components are shallow:
 ## Accumulator Complexity
 
 ### Strange Typecasting Behavior [00:29:00]
+[![00:29:00](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=1740s)
 The accumulator has unusual semantics:
 - If entry exists in A but not C: typecasts from A to C (bypasses operator!)
 - If exists in both: must typecast A to operator input type, then operator runs
@@ -256,6 +273,7 @@ The accumulator has unusual semantics:
 **Key quote:** "Typecasting with the accumulator has very strange behavior in GraphBLAS. It's what the spec told me to do. So that's what I did." [00:29:41]
 
 ### Why It Can't Change [00:30:56]
+[![00:30:56](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=1856s)
 - Too much code depends on current accumulator behavior
 - Extensively fused into every operation for performance
 - Assign operation has 40 different kernels all designed for accumulator behavior
@@ -268,6 +286,7 @@ The accumulator has unusual semantics:
 ## Format Agnostic Design
 
 ### The Agnostic Trick [00:23:28]
+[![00:23:28](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=1408s)
 Many internal methods are "format agnostic":
 - Treat everything as a pile of vectors
 - Don't care if stored by row or column
@@ -281,6 +300,7 @@ Many internal methods are "format agnostic":
 ## Testing and Verification
 
 ### Debug Mode Verification [01:10:03]
+[![01:10:03](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=4203s)
 For parallel algorithms, Tim implements both:
 - Complex parallel version
 - Simple sequential version (easy to understand)
@@ -297,6 +317,7 @@ assert(parallel_result == sequential_result);
 **Note:** "Terribly slow. You have to edit the code to turn this on." [01:10:26]
 
 ### JIT Kernel Count [01:48:37]
+[![01:48:37](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=6517s)
 Exhaustive test suite compiles approximately **4,000 JIT kernels** covering all type and operator combinations for transpose.
 
 ---
@@ -304,6 +325,7 @@ Exhaustive test suite compiles approximately **4,000 JIT kernels** covering all 
 ## Integration with Other Operations
 
 ### Pack/Unpack Complications [01:50:30]
+[![01:50:30](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=6630s)
 When unpacking a matrix in a specific format:
 - User requests CSR format
 - Matrix is actually stored as CSC
@@ -312,6 +334,7 @@ When unpacking a matrix in a specific format:
 **Recommendation:** Query format first, then call appropriate unpack method to avoid conversion. [01:51:23]
 
 ### Matrix Multiply Usage [01:53:00]
+[![01:53:00](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=6780s)
 Several places in matrix multiply need to transpose input matrices based on descriptor settings and internal algorithm requirements.
 
 **Key quote:** "Transpose is used so many other places... every descriptor could potentially invoke a deep or shallow transpose." [01:53:01]
@@ -321,6 +344,7 @@ Several places in matrix multiply need to transpose input matrices based on desc
 ## Performance Considerations
 
 ### Parallel Scalability [00:42:00]
+[![00:42:00](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=2520s)
 Bucket sorts face parallelism challenges:
 - Need atomics (slow) OR
 - Each thread needs own buckets (memory intensive)
@@ -331,6 +355,7 @@ Builder method scales better:
 - Higher memory bandwidth utilization
 
 ### Memory Optimization [00:37:43]
+[![00:37:43](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=2263s)
 Transpose leverages shallow copies extensively:
 - Values array can often be shallow-copied
 - Sparsity pattern reuse when only applying operators

@@ -31,6 +31,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 ## Data Structures and Matrix Formats
 
 ### Matrix Format Variants [00:00:08 - 00:09:00]
+[![00:00:08](https://img.youtube.com/vi/Pfy5hAsc85Q/default.jpg)](https://www.youtube.com/watch?v=Pfy5hAsc85Q&t=8s)
 
 **Discussion:** Dr. Davis explained the core data structures in SuiteSparse GraphBLAS, emphasizing the complexity introduced by multiple matrix formats and parallelism strategies.
 
@@ -54,6 +55,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 ## Hyper Hash Data Structure
 
 ### Hyper Hash Concept and Motivation [00:12:06 - 00:26:06]
+[![00:12:06](https://img.youtube.com/vi/Pfy5hAsc85Q/default.jpg)](https://www.youtube.com/watch?v=Pfy5hAsc85Q&t=726s)
 
 **Discussion:** Introduction to the hyper hash data structure, which accelerates lookups in hyper-sparse matrices by inverting the hyper list.
 
@@ -76,6 +78,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 - Hash table size always power of 2 for efficient modulo operations
 
 ### Hyper Hash Implementation [00:26:06 - 00:35:20]
+[![00:26:06](https://img.youtube.com/vi/Pfy5hAsc85Q/default.jpg)](https://www.youtube.com/watch?v=Pfy5hAsc85Q&t=1566s)
 
 **Discussion:** Technical implementation details of the hyper hash structure as a GRB matrix object.
 
@@ -105,6 +108,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 ## Hyper Hash Heuristics and Management
 
 ### When to Build Hyper Hash [00:39:00 - 00:49:00]
+[![00:39:00](https://img.youtube.com/vi/Pfy5hAsc85Q/default.jpg)](https://www.youtube.com/watch?v=Pfy5hAsc85Q&t=2340s)
 
 **Discussion:** Decision logic for when to construct a hyper hash versus using simple binary search.
 
@@ -133,6 +137,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 - Hysteresis prevents thrashing when vector count oscillates near threshold
 
 ### Hyper Hash and User API [00:55:00 - 01:00:00]
+[![00:55:00](https://img.youtube.com/vi/Pfy5hAsc85Q/default.jpg)](https://www.youtube.com/watch?v=Pfy5hAsc85Q&t=3300s)
 
 **Discussion:** How hyper hash interacts with pack/unpack functionality and API design.
 
@@ -156,6 +161,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 ## Matrix Format Conversions
 
 ### Conform and Convert Mechanisms [01:02:00 - 01:09:00]
+[![01:02:00](https://img.youtube.com/vi/Pfy5hAsc85Q/default.jpg)](https://www.youtube.com/watch?v=Pfy5hAsc85Q&t=3720s)
 
 **Discussion:** How GraphBLAS automatically selects and converts between matrix formats.
 
@@ -176,6 +182,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 [01:03:36]
 
 ### Hysteresis and Format Stability [01:04:41 - 01:05:09]
+[![01:04:41](https://img.youtube.com/vi/Pfy5hAsc85Q/default.jpg)](https://www.youtube.com/watch?v=Pfy5hAsc85Q&t=3881s)
 
 **Discussion:** How GraphBLAS prevents format thrashing.
 
@@ -190,6 +197,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 ## Implications for Dense Operations
 
 ### Dense Vector Results [01:05:09 - 01:11:00]
+[![01:05:09](https://img.youtube.com/vi/Pfy5hAsc85Q/default.jpg)](https://www.youtube.com/watch?v=Pfy5hAsc85Q&t=3909s)
 
 **Discussion:** Why GraphBLAS sometimes produces sparse results even with dense inputs.
 
@@ -219,6 +227,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 ## Matrix Multiply Variants
 
 ### Saxby Methods Overview [01:12:00 - 01:13:05]
+[![01:12:00](https://img.youtube.com/vi/Pfy5hAsc85Q/default.jpg)](https://www.youtube.com/watch?v=Pfy5hAsc85Q&t=4320s)
 
 **Discussion:** Different matrix multiply algorithms in GraphBLAS.
 
@@ -241,6 +250,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 ## Next Steps and JIT Discussion
 
 ### Transition to JIT Focus [01:13:05 - 01:20:00]
+[![01:13:05](https://img.youtube.com/vi/Pfy5hAsc85Q/default.jpg)](https://www.youtube.com/watch?v=Pfy5hAsc85Q&t=4385s)
 
 **Discussion:** Planning next session's topics and identifying JIT as critical foundation.
 

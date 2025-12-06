@@ -50,6 +50,7 @@ This session focuses on the Just-In-Time (JIT) compilation system in SuiteSparse
 ## Dynamic Graphs and Matrix Operations
 
 ### Cartesian Masks and Extended Select Operations [00:00:00]
+[![00:00:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=0s)
 
 Dr. Davis discusses the need for more powerful selection operations in GraphBLAS:
 
@@ -64,6 +65,7 @@ Dr. Davis discusses the need for more powerful selection operations in GraphBLAS
 **Timestamp:** [00:01:00] - [00:04:20]
 
 ### Dynamic Graph Support Through Pending Updates [00:04:20]
+[![00:04:20](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=260s)
 
 Discussion of how GraphBLAS handles dynamic operations:
 
@@ -84,6 +86,7 @@ Discussion of how GraphBLAS handles dynamic operations:
 ## JIT System Architecture
 
 ### High-Level Overview [00:08:20]
+[![00:08:20](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=500s)
 
 The JIT system is approximately 11,000 lines of code and represents a major component of GraphBLAS.
 
@@ -97,6 +100,7 @@ The JIT system is approximately 11,000 lines of code and represents a major comp
 **Timestamp:** [00:08:20] - [00:10:30]
 
 ### Starting Point: Matrix Reduce to Scalar [00:09:30]
+[![00:09:30](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=570s)
 
 The simplest interesting GraphBLAS function used to explain JIT:
 
@@ -119,6 +123,7 @@ The simplest interesting GraphBLAS function used to explain JIT:
 ## Encoding System
 
 ### The Encodify Process [00:17:00]
+[![00:17:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=1020s)
 
 Every JIT call must quickly encode the operation:
 
@@ -139,6 +144,7 @@ Every JIT call must quickly encode the operation:
 **Timestamp:** [00:17:00] - [00:40:00]
 
 ### Enumification of Operators [00:40:25]
+[![00:40:25](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=2425s)
 
 How binary operators are encoded:
 
@@ -155,6 +161,7 @@ How binary operators are encoded:
 **Timestamp:** [00:40:25] - [00:50:00]
 
 ### Hash Function Design [00:50:00]
+[![00:50:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=3000s)
 
 Hash computation for kernel lookup:
 
@@ -172,6 +179,7 @@ Hash computation for kernel lookup:
 ## Kernel Management
 
 ### JIT Kernel Codes [00:52:00]
+[![00:52:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=3120s)
 
 Enumeration of all JIT kernel families:
 
@@ -192,6 +200,7 @@ Enumeration of all JIT kernel families:
 **Timestamp:** [00:52:00] - [00:55:00]
 
 ### Hash Table and Caching [00:56:00]
+[![00:56:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=3360s)
 
 Global hash table for all compiled kernels:
 
@@ -215,6 +224,7 @@ Global hash table for all compiled kernels:
 ## JIT Compilation Process
 
 ### Cache Directory Structure [01:09:00]
+[![01:09:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=4140s)
 
 Organization of JIT cache at ~/.suite_sparse/GRB_9_3/:
 
@@ -231,6 +241,7 @@ Organization of JIT cache at ~/.suite_sparse/GRB_9_3/:
 **Timestamp:** [01:09:00] - [01:12:00]
 
 ### Kernel Naming Convention [01:17:00]
+[![01:17:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=4620s)
 
 Generated kernel files follow pattern:
 
@@ -248,6 +259,7 @@ GB_jit__<method>__<code>__<suffix>
 **Timestamp:** [01:17:00] - [01:21:00]
 
 ### Macroification Process [01:21:00]
+[![01:21:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=4860s)
 
 How templates are specialized:
 
@@ -271,6 +283,7 @@ How templates are specialized:
 **Timestamp:** [01:21:00] - [01:30:00]
 
 ### JIT Query Function [01:30:00]
+[![01:30:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=5400s)
 
 Validation mechanism for loaded kernels:
 
@@ -293,6 +306,7 @@ Validation mechanism for loaded kernels:
 ## Pre-JIT Kernels
 
 ### Pre-compilation for Restricted Platforms [01:35:00]
+[![01:35:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=5700s)
 
 Support for platforms without runtime compilation:
 
@@ -319,6 +333,7 @@ Support for platforms without runtime compilation:
 ## JIT Package System
 
 ### Embedded Source Code [01:47:00]
+[![01:47:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=6420s)
 
 Solution to the source code distribution problem:
 
@@ -340,6 +355,7 @@ Solution to the source code distribution problem:
 **Timestamp:** [01:47:00] - [01:51:00]
 
 ### Source Code Packaging [01:48:00]
+[![01:48:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=6480s)
 
 CMake build process:
 
@@ -365,6 +381,7 @@ static uint8_t GB_jit_kernel_reduce[] = {
 ## CUDA Integration
 
 ### CUDA JIT Kernels [01:42:00]
+[![01:42:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=6120s)
 
 Parallel structure for GPU kernels:
 
@@ -387,6 +404,7 @@ Parallel structure for GPU kernels:
 **Timestamp:** [01:42:00] - [01:47:00]
 
 ### GPU/CPU Decision Heuristics [01:56:00]
+[![01:56:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=6960s)
 
 Runtime decision-making for heterogeneous systems:
 
@@ -407,6 +425,7 @@ Runtime decision-making for heterogeneous systems:
 ## Callback Mechanism
 
 ### Avoiding Library Linking Issues [01:52:00]
+[![01:52:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=6720s)
 
 JIT kernels need to call back into GraphBLAS:
 
@@ -429,6 +448,7 @@ JIT kernels need to call back into GraphBLAS:
 ## Future Work and Extensions
 
 ### Planned JIT Kernels [01:59:00]
+[![01:59:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=7140s)
 
 Significant expansion planned:
 
@@ -444,6 +464,7 @@ Significant expansion planned:
 **Timestamp:** [01:59:00] - [02:02:00]
 
 ### Index Binary Operators [01:59:30]
+[![01:59:30](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=7170s)
 
 Major upcoming feature:
 
@@ -458,6 +479,7 @@ Major upcoming feature:
 **Timestamp:** [01:59:30] - [02:00:02]
 
 ### Unified Shared Memory Benefits [02:04:44]
+[![02:04:44](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=7484s)
 
 Philosophy for heterogeneous computing:
 
@@ -478,6 +500,7 @@ Philosophy for heterogeneous computing:
 ## Technical Details
 
 ### Performance Considerations [01:56:01]
+[![01:56:01](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=6961s)
 
 Threshold decisions for JIT vs generic:
 
@@ -492,6 +515,7 @@ Threshold decisions for JIT vs generic:
 **Timestamp:** [01:56:01] - [01:57:00]
 
 ### Critical Section Management [01:06:00]
+[![01:06:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=3960s)
 
 Thread safety in JIT compilation:
 

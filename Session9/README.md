@@ -44,6 +44,7 @@ This session covers the implementation of reduce operations in SuiteSparse Graph
 ## Reduce Operations: High-Level Architecture
 
 ### Reduce-to-Vector Implementation [00:10:00 - 00:25:00]
+[![00:10:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=600s)
 
 Dr. Davis explains how reduce-to-vector is elegantly implemented as a matrix-vector multiply operation.
 
@@ -73,6 +74,7 @@ The reduce-to-vector operation is implemented in only 218 lines of code by conve
 ## The Monoid vs Binary Operator Controversy
 
 ### The Spec's Binary Operator Requirement [00:06:00 - 00:10:00]
+[![00:06:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=360s)
 
 Dr. Davis passionately explains why `GrB_matrix_reduce` with a binary operator (instead of monoid) is problematic.
 
@@ -89,6 +91,7 @@ When given a binary operator instead of monoid, he uses `GB_binop_to_monoid()` t
 > "If you have a user defined operator, I don't know what monoid it corresponds to. I say sorry, go away. You can't do this. I refuse." [00:09:25]
 
 ### Why Monoids Are Computationally Essential [00:23:00 - 00:27:00]
+[![00:23:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=1380s)
 
 **Performance Argument:**
 > "It's mathematically nonsense to give it to me for the matrix matrix multiply and not reduce to vector when mathematically they're so similar and computationally so similar." [00:26:27]
@@ -111,6 +114,7 @@ The identity value is crucial for efficient parallel reduction. Without it:
 ## Reduce-to-Scalar Implementation
 
 ### Overview and Special Cases [00:33:00 - 00:40:00]
+[![00:33:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=1980s)
 
 The reduce-to-scalar operation has several special cases and optimizations:
 
@@ -120,6 +124,7 @@ The reduce-to-scalar operation has several special cases and optimizations:
 4. **CPU reduction**: Two template algorithms (with/without panels)
 
 ### Iso-Valued Matrix Reduction [00:37:00 - 00:40:00]
+[![00:37:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=2220s)
 
 For iso-valued matrices, even massive ones, reduction is computed in logarithmic time.
 
@@ -137,6 +142,7 @@ Recursively reduces: if N=1, done; otherwise reduce N/2 and combine.
 [00:37:05]
 
 ### GPU Recursive Reduction [00:35:00 - 00:36:30]
+[![00:35:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=2100s)
 
 **Challenge:**
 Not all data types/monoids support atomic operations for cross-thread-block reduction on GPU.
@@ -155,6 +161,7 @@ The function then recursively calls itself to finish the reduction (usually on C
 ## Panel Reduction Algorithm
 
 ### Purpose and Design [00:42:00 - 00:47:00]
+[![00:42:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=2520s)
 
 **Why Panels?**
 Direct scalar reduction (s += s += s) is inefficient even on single threads. Panel reduction enables vectorization.
@@ -172,6 +179,7 @@ Direct scalar reduction (s += s += s) is inefficient even on single threads. Pan
 [00:42:00]
 
 ### Terminal Monoids and Short-Circuiting [00:47:00 - 00:49:00]
+[![00:47:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=2820s)
 
 **Terminal Monoids:**
 Some monoids can short-circuit when they reach a terminal value:
@@ -191,6 +199,7 @@ Instead of checking after every value, checks every 256 panels for performance.
 [00:47:02]
 
 ### Parallel Panel Reduction [00:49:00 - 00:53:00]
+[![00:49:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=2940s)
 
 **Task-Based Parallelism:**
 - Each task gets its own panel (allocated on stack)
@@ -212,6 +221,7 @@ Tasks that have already started continue to completion, but new tasks check the 
 ## Two Reduction Templates
 
 ### Template 1: Panel-Based Reduction [00:43:00 - 00:53:00]
+[![00:43:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=2580s)
 
 **File:** `GB_reduce_to_scalar_template.c`
 
@@ -227,6 +237,7 @@ Tasks that have already started continue to completion, but new tasks check the 
 - Both sequential and parallel variants
 
 ### Template 2: Simple Reduction [00:54:00 - 00:57:00]
+[![00:54:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=3240s)
 
 **File:** `GB_reduce_to_scalar_jit.c`
 
@@ -250,6 +261,7 @@ Tasks that have already started continue to completion, but new tasks check the 
 ## Kernel Selection Strategy
 
 ### Factory Kernels [00:40:00 - 00:42:00]
+[![00:40:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=2400s)
 
 **Pre-compiled Kernels:**
 Only available for specific built-in monoids:
@@ -264,6 +276,7 @@ Big switch case based on monoid opcode, calling pre-compiled optimized kernels.
 [00:41:12]
 
 ### JIT Kernels [00:42:00 - 00:43:00]
+[![00:42:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=2520s)
 
 Use the same two templates as factory kernels but compile at runtime for:
 - Custom type combinations
@@ -271,6 +284,7 @@ Use the same two templates as factory kernels but compile at runtime for:
 - Any monoid not covered by factory kernels
 
 ### Generic Kernels [00:59:00 - 01:00:00]
+[![00:59:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=3540s)
 
 **Fallback Implementation:**
 When JIT is disabled, uses function pointers and memcpy operations.
@@ -285,6 +299,7 @@ When JIT is disabled, uses function pointers and memcpy operations.
 ## The Accumulator Problem for Scalars
 
 ### Unique Design Challenge [01:00:00 - 01:03:00]
+[![01:00:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=3600s)
 
 Reduce-to-scalar is an outlier in GraphBLAS operations:
 
@@ -311,6 +326,7 @@ Rather than reusing the general accumulator-mask machinery, Tim hard-coded a spe
 ## Cast Factory
 
 ### Purpose [01:02:59 - 01:04:30]
+[![01:02:59](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=3779s)
 
 **Function:**
 Returns function pointers for type casting between all built-in types (13x13 matrix of cast functions).
@@ -334,6 +350,7 @@ Used in generic kernels and accumulator operations where performance of a single
 ## User-Defined Types and First Operator
 
 ### Creating First Operator for User Types [00:17:00 - 00:19:00]
+[![00:17:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=1020s)
 
 **Challenge:**
 For reduce-to-vector, need a first operator for the multiplicative part of the semiring.
@@ -355,6 +372,7 @@ Just a memcpy operation of the appropriate byte size for the user-defined type.
 ## Code Organization and Style
 
 ### Function Call Formatting [00:20:00 - 00:21:30]
+[![00:20:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=1200s)
 
 Dr. Davis is very particular about code formatting for searchability:
 
@@ -373,6 +391,7 @@ Using `grep "GB_mxm ("` finds exactly where the function is called, with no fals
 ## Complexity Comparison
 
 ### Reduce Operations vs Other Kernels [00:00:00 - 00:02:00]
+[![00:00:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=0s)
 
 Dr. Davis's assessment of operation complexity:
 

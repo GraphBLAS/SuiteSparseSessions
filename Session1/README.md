@@ -46,6 +46,7 @@ Interview with Dr. Tim Davis about SuiteSparse GraphBLAS code organization and a
 ## Code Organization & Restructuring
 
 ### Source Code Reorganization [00:01:16]
+[![00:01:16](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=76s)
 
 Dr. Davis has recently reorganized the GraphBLAS source code from a single flat directory into a modular structure to make it easier for contributors to navigate.
 
@@ -55,6 +56,7 @@ Dr. Davis has recently reorganized the GraphBLAS source code from a single flat 
 - Each module contains three consistent subdirectories: `factory/`, `include/`, and `template/`
 
 ### File Organization Conventions [00:02:22]
+[![00:02:22](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=142s)
 
 **Template Files:**
 - Use `#include` to include template source code
@@ -62,6 +64,7 @@ Dr. Davis has recently reorganized the GraphBLAS source code from a single flat 
 - Distinction: `.h` files are headers, template files are included for code generation
 
 ### Module Structure [00:11:00]
+[![00:11:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=660s)
 
 Each module represents a GraphBLAS operation (apply, assign, reduce, mxm, etc.). Some modules are:
 - **Primary modules**: Support end-user operations (apply, assign, etc.)
@@ -71,6 +74,7 @@ Each module represents a GraphBLAS operation (apply, assign, reduce, mxm, etc.).
 ## Code Generation & Factory Kernels
 
 ### Code Generation System [00:34:00]
+[![00:34:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=2040s)
 
 GraphBLAS uses MATLAB scripts to generate factory kernels at development time.
 
@@ -80,6 +84,7 @@ GraphBLAS uses MATLAB scripts to generate factory kernels at development time.
 - Result: 22,000+ factory kernel files
 
 ### Five Types of Kernels [00:05:30]
+[![00:05:30](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=330s)
 
 1. **Non-disableable kernels**: Basic operations that can't be turned off (like iso-valued operations)
 2. **Factory kernels**: Large switch-case implementations, ~1,000 variants for different operators/types
@@ -92,6 +97,7 @@ GraphBLAS uses MATLAB scripts to generate factory kernels at development time.
 ## Kernel Selection & Execution Flow
 
 ### Reduce to Scalar Example [00:44:00]
+[![00:44:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=2640s)
 
 The execution flow for `GrB_reduce` demonstrates the kernel selection hierarchy:
 
@@ -108,6 +114,7 @@ The execution flow for `GrB_reduce` demonstrates the kernel selection hierarchy:
 ## JIT System Architecture
 
 ### JIT Compilation Process [01:24:00]
+[![01:24:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=5040s)
 
 **Encoding & Hashing:**
 - Each kernel is encoded into a compact bit representation
@@ -115,12 +122,14 @@ The execution flow for `GrB_reduce` demonstrates the kernel selection hierarchy:
 - JIT loader checks hash table before compiling
 
 ### JIT Package Location [01:29:00]
+[![01:29:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=5340s)
 
 - Default location: `~/.Suitesparse/` (or Windows equivalent)
 - Version-specific: Each GraphBLAS version gets its own cache
 - Two subdirectories: `src/` for generated C files, `lib/` for compiled binaries
 
 ### Pre-JIT Kernels [01:42:00]
+[![01:42:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=6120s)
 
 Users can "pre-compile" JIT kernels into the library:
 1. Run application with JIT enabled
@@ -133,6 +142,7 @@ Users can "pre-compile" JIT kernels into the library:
 ## Data Structures
 
 ### Matrix Pending States [00:55:00]
+[![00:55:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=3300s)
 
 Matrices can have three types of pending work:
 - **Zombies**: Pending deletions
@@ -144,6 +154,7 @@ Operations can be tolerant of these states (e.g., reduce to scalar doesn't need 
 **Quote:** "The reduce to scalar is tolerant of zombies. It'll just skip over them, and it doesn't care if the entries in every row are in ascending order of column index, so the input matrix can stay jumbled."
 
 ### Iso-Valued Matrices [01:05:40]
+[![01:05:40](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=3940s)
 
 A key optimization for matrices where all present entries have the same value:
 - Store only one value instead of array of identical values
@@ -154,6 +165,7 @@ A key optimization for matrices where all present entries have the same value:
 **Quote:** "I don't need to store a billion ones. I just store one of them with a flag that says they're all the same."
 
 ### Four Matrix Formats [01:59:45]
+[![01:59:45](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=7185s)
 
 GraphBLAS supports four fundamental sparse matrix formats:
 - **Sparse** (CSR/CSC)
@@ -166,6 +178,7 @@ Each can be stored by row or column, and can be iso-valued, leading to 16 varian
 ## Macros & Templates
 
 ### Monoid Macros [01:13:00]
+[![01:13:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=4380s)
 
 Factory and JIT kernels use extensive macro systems to specialize operations. Each monoid defines:
 - `GB_ADD`: The addition operation
@@ -179,6 +192,7 @@ Factory and JIT kernels use extensive macro systems to specialize operations. Ea
 - Min monoid: `z = (z < y) ? z : y` (with NaN handling)
 
 ### Generic Kernel Macros [01:48:00]
+[![01:48:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=6480s)
 
 Generic kernels use the same templates as factory/JIT but with slower implementations:
 - Factory/JIT: `z += y` (direct operation)
@@ -188,6 +202,7 @@ Generic kernels use the same templates as factory/JIT but with slower implementa
 ## Workspace Management
 
 ### Werk Space [00:51:20]
+[![00:51:20](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=3080s)
 
 GraphBLAS uses a statically-allocated workspace on the stack:
 - Size: ~32KB
@@ -202,6 +217,7 @@ where the Werkspace is used.
 ## API & Spec Issues
 
 ### C Scalars Problem [01:52:00]
+[![01:52:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=6720s)
 
 The GraphBLAS C API has extensive bloat from supporting both `GrB_Scalar` and C scalar types:
 
@@ -215,10 +231,12 @@ The GraphBLAS C API has extensive bloat from supporting both `GrB_Scalar` and C 
 **Proposal:** Remove C scalar support in GraphBLAS 3.0, use only `GrB_Scalar` objects.
 
 ### Reduce to Scalar API [01:50:05]
+[![01:50:05](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=6605s)
 
 Unlike other GraphBLAS operations, reduce to scalar has no mask parameter (scalar mask would be pointless). This requires special-case accumulator handling.
 
 ## Testing Strategy [02:03:00]
+[![02:03:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=7380s)
 
 GraphBLAS testing uses a dual-implementation approach:
 
@@ -234,6 +252,7 @@ GraphBLAS testing uses a dual-implementation approach:
 ## Build System
 
 ### Compact Mode [00:05:30]
+[![00:05:30](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=330s)
 
 GraphBLAS can be compiled in "compact mode" to reduce binary size:
 - Disable factory kernels (per-operator, per-type control)
@@ -241,6 +260,7 @@ GraphBLAS can be compiled in "compact mode" to reduce binary size:
 - Falls back to JIT (fast, but requires a compiler) or generic kernels (slower but functional)
 
 ### CMake Configuration [00:44:00]
+[![00:44:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=2640s)
 
 The main GraphBLAS header is auto-generated by CMake from a template:
 - Adds version numbers
@@ -251,6 +271,7 @@ The main GraphBLAS header is auto-generated by CMake from a template:
 ## Future Directions
 
 ### Next Session Topics [01:59:00]
+[![01:59:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=7140s)
 
 Suggested topics for future sessions:
 1. **Transpose operation**: Smaller than mxm, introduces data structure details
@@ -259,6 +280,7 @@ Suggested topics for future sessions:
 4. **CUDA kernels**: GPU-specific implementation details
 
 ### GPU Heuristics [01:21:00]
+[![01:21:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=4860s)
 
 Current GPU selection is simple (if available, use it). Future improvements:
 - Track which pieces of matrix were last accessed on GPU
@@ -271,6 +293,7 @@ Current GPU selection is simple (if available, use it). Future improvements:
 ## Technical Details
 
 ### Variable Length Arrays [00:58:30]
+[![00:58:30](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=3510s)
 
 GraphBLAS uses C variable-length arrays for scalars of unknown type:
 - Most compilers: True VLA based on type size
@@ -278,6 +301,7 @@ GraphBLAS uses C variable-length arrays for scalars of unknown type:
 - Macro `GB_VLA` handles platform differences
 
 ### Query Functions [01:37:00]
+[![01:37:00](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=5820s)
 
 Every JIT kernel library exports two functions:
 1. **Kernel function**: The actual computation
@@ -290,6 +314,7 @@ Every JIT kernel library exports two functions:
 Used to detect when user types/operators change and recompilation is needed.
 
 ### Terminal Monoids [01:32:10]
+[![01:32:10](https://img.youtube.com/vi/TOwiv1yDcwk/default.jpg)](https://www.youtube.com/watch?v=TOwiv1yDcwk&t=5530s)
 
 Some monoids can short-circuit (e.g., logical AND):
 - Terminal value: false (for AND)

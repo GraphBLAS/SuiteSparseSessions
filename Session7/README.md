@@ -69,6 +69,7 @@ This is the third session on the JIT (Just-In-Time) compiler in SuiteSparse Grap
 ## JIT Control States and Error Handling
 
 ### JIT Control Levels [00:03:00]
+[![00:03:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=180s)
 There are 5 distinct states for JIT control:
 1. **On** - Can load and compile
 2. **Load** - Can load from disk but cannot compile
@@ -79,6 +80,7 @@ There are 5 distinct states for JIT control:
 **Key Quote**: "If I fail to compile, I ratchet down to we can only load. If I fail to load, I ratchet down to run." [00:03:46]
 
 ### Error Handling Strategy [00:01:33]
+[![00:01:33](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=93s)
 When compilation fails (e.g., user-defined operator with typo), GraphBLAS automatically downgrades the JIT state to prevent repeated compilation attempts. This prevents the system from trying to compile invalid code thousands of times.
 
 **Issue**: Need better user control over JIT failure behavior. Currently returns GRB_NO_VALUE internally, but may need new error codes like GRB_JIT_FAIL for development scenarios where users want to know compilation failed. [00:04:16]
@@ -90,6 +92,7 @@ When compilation fails (e.g., user-defined operator with typo), GraphBLAS automa
 ## Kernel Loading and Validation
 
 ### Loading Process [00:22:51]
+[![00:22:51](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=1371s)
 1. Construct .so filename from hash code and kernel name
 2. Attempt `dlopen()` on the library
 3. If successful, query the kernel to verify it's valid
@@ -101,6 +104,7 @@ When compilation fails (e.g., user-defined operator with typo), GraphBLAS automa
 - Path format: `~/.suitesparse/grb-9.3.0/<bucket>/<lib><kernel_name>.so`
 
 ### Kernel Query Function [00:26:03]
+[![00:26:03](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=1563s)
 Each JIT kernel has two symbols:
 1. `jit_query` - Validates the kernel is correct version
 2. `jit_kernel` - The actual kernel function
@@ -112,6 +116,7 @@ If query fails or kernel is stale, the file is removed and recompiled. [00:26:51
 ## Critical Sections and Locking
 
 ### Thread Safety [00:16:32]
+[![00:16:32](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=992s)
 - **Critical sections** protect against multiple threads within same process
 - **File locking** protects against multiple processes accessing same kernel
 
@@ -127,6 +132,7 @@ If query fails or kernel is stale, the file is removed and recompiled. [00:26:51
 ## Macro System and Code Generation
 
 ### Macrify Family Functions [00:30:00]
+[![00:30:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=1800s)
 The code generation uses extensive macro preprocessing to generate specialized kernels. Main families:
 - Apply
 - Assign
@@ -138,6 +144,7 @@ The code generation uses extensive macro preprocessing to generate specialized k
 - User-defined operators/types
 
 ### Type System [00:47:58]
+[![00:47:58](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=2878s)
 **Six potential types in operations**:
 - C, A, B matrix types (type1, type2, type3)
 - X, Y, Z semiring types (multiply inputs and output)
@@ -148,6 +155,7 @@ For MxM: Can have 6 different types due to typecasting between matrix types and 
 Only unique types are output to avoid duplication. Uses string comparison to detect when types are identical and only generates typedef once with guards (`#ifndef`).
 
 ### Operator Macrofication [00:59:00]
+[![00:59:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=3540s)
 
 **Binary Operators**: Two paths:
 1. **Built-in operators** - Simple inline definitions (e.g., `z = x ^ ~y` for bitwise XNOR)
@@ -160,6 +168,7 @@ Only unique types are output to avoid duplication. Uses string comparison to det
 ## Sparsity Format Handling
 
 ### Format Macros [01:29:00]
+[![01:29:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=5340s)
 Each matrix has accessor macros that adapt to its sparsity format:
 - **Sparse**: Look up indices in arrays
 - **Hyper-sparse**: Additional indirection through hyperlist
@@ -178,6 +187,7 @@ Single line `if (!GB_B_IS_PRESENT(p)) continue;` handles bitmap case. For non-bi
 ## Typecasting Implementation
 
 ### Why Custom Typecasting [01:48:40]
+[![01:48:40](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=6520s)
 
 **Problem 1 - Complex to Bool**: [01:48:28]
 Windows doesn't properly handle casting from complex types to bool. GraphBLAS manually checks real and imaginary parts against zero.
@@ -193,6 +203,7 @@ ANSI C leaves casting from out-of-range float to integer as undefined behavior. 
 **Quote**: "Matlab doesn't do that. They define it. So if you cast a floating point infinity to int32, you get int32 max. That's a pretty decent answer. If you do that in ANSI C, you get 42 or something ridiculous." [01:50:13]
 
 ### Cast Function Generation [01:52:00]
+[![01:52:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=6720s)
 Special functions like `GB_jit_cast_double_to_uint16_t` handle all edge cases with proper range checking before calling standard C cast.
 
 ---
@@ -200,6 +211,7 @@ Special functions like `GB_jit_cast_double_to_uint16_t` handle all edge cases wi
 ## Preface and Include System
 
 ### User-Defined Preface [00:32:10]
+[![00:32:10](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=1930s)
 Users can set custom `#include` directives and comments for JIT kernels via `GrB_set()`:
 - C preface for CPU/OpenMP kernels
 - CUDA preface for GPU kernels (separate)
@@ -217,6 +229,7 @@ This allows user-defined operators to include necessary headers without GraphBLA
 ## Compilation Process
 
 ### Three Compilation Methods [02:10:15]
+[![02:10:15](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=7815s)
 
 1. **Direct compiler call** (Linux/Mac default)
    - Single `system()` call with full compile+link command
@@ -234,6 +247,7 @@ This allows user-defined operators to include necessary headers without GraphBLA
    - Single command for compile and link
 
 ### Compiler Configuration [02:17:00]
+[![02:17:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=8220s)
 - Default: Uses same compiler that built GraphBLAS (from `GB_config.h`)
 - Customizable via `GrB_set()` to specify different compiler
 - C flags can be augmented (e.g., adding `-I` for custom include paths)
@@ -248,6 +262,7 @@ This allows user-defined operators to include necessary headers without GraphBLA
 ## JIT Kernel Structure
 
 ### Runtime vs Pre-JIT Kernels [01:57:45]
+[![01:57:45](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=7065s)
 
 **Flag**: `GB_JIT_RUNTIME`
 - Defined: Kernel compiled at runtime by JITifyer
@@ -261,6 +276,7 @@ This allows user-defined operators to include necessary headers without GraphBLA
 - Loaded into hash table at `GrB_init()` time
 
 ### Template System [02:03:00]
+[![02:03:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=7380s)
 Kernels are just templates - they have no function headers, just code bodies:
 ```c
 // No function signature here
@@ -282,6 +298,7 @@ The function signature is defined in separate wrapper file that `#include`s the 
 ## Algorithm Example: Apply Bind-First
 
 ### Simple Algorithm [02:03:20]
+[![02:03:20](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=7400s)
 ```c
 for (int64_t p = 0; p < bnz; p++)
 {
@@ -305,6 +322,7 @@ for (int64_t p = 0; p < bnz; p++)
 ## Source Code Organization
 
 ### JIT Package [02:22:23]
+[![02:22:23](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=8543s)
 All source code bundled inside `libgraphblas.so` as compressed binary using zstandard compression. On first use, JITifyer decompresses and writes to cache folder.
 
 **Cache Contents** (~27,000 lines):
@@ -336,6 +354,7 @@ All source code bundled inside `libgraphblas.so` as compressed binary using zsta
 ## User-Defined Types and Masks
 
 ### Mask Type Restrictions [01:32:00]
+[![01:32:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=5520s)
 
 **Current limitation**: Cannot use valued mask with user-defined types. User-defined types cannot be typecast to bool (no typecast functions defined).
 
@@ -349,6 +368,7 @@ Allow users to register a "cast to bool" function for user-defined types. This w
 **Ray's request**: Add support for typecast from user-defined type to bool. [01:32:53]
 
 ### Arbitrary Typecasting Debate [01:34:20]
+[![01:34:20](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=5660s)
 
 **Slippery slope concern**: If we add bool typecast, why not all typecasts?
 - User type → 12 built-in types = 12 functions
@@ -362,6 +382,7 @@ Allow users to register a "cast to bool" function for user-defined types. This w
 ## Operator Dependency Analysis
 
 ### Future Enhancement Idea [00:50:20]
+[![00:50:20](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=3020s)
 
 **Problem**: Index unary operators receive 4 parameters (value, row, column, theta) but may only use subset. GraphBLAS still does work to compute all 4.
 
@@ -382,6 +403,7 @@ GrB_set(op, "I don't use row index")
 ## Hash Table Implementation
 
 ### Hash Function [02:24:00]
+[![02:24:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=8640s)
 Uses XX hash on the encoding struct to generate 64-bit hash.
 
 **Special hash values**:
@@ -394,6 +416,7 @@ If XX hash returns 0 or UINT64_MAX by chance (very rare), return magic number in
 **Magic number**: Arbitrary 64-bit value used to detect if matrix has been initialized/freed. [02:26:10]
 
 ### Pre-hashing Strategy [01:08:02]
+[![01:08:02](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=4082s)
 Every operator, type, semiring, monoid has its own hash code computed in advance. Final hash is built by XOR-ing these together rather than rehashing everything each time.
 
 ---
@@ -401,6 +424,7 @@ Every operator, type, semiring, monoid has its own hash code computed in advance
 ## Encoding System
 
 ### Bit-Packed Encoding [00:40:40]
+[![00:40:40](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=2440s)
 
 **Example - Element-wise (48 bits)**:
 - Format of C, M, A, B: 8 bits (2 bits each for 4 matrices)
@@ -413,6 +437,7 @@ Every operator, type, semiring, monoid has its own hash code computed in advance
 Carefully designed so bit boundaries align with hex digit boundaries for easier debugging and parsing.
 
 ### Type Codes [00:48:47]
+[![00:48:47](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=2927s)
 - Built-in types: 1-12 (int, float, double, etc.)
 - User-defined: 0xE (14) = "user-defined, don't know which"
 - 0 = void (type not used by operator)
@@ -424,6 +449,7 @@ Carefully designed so bit boundaries align with hex digit boundaries for easier 
 ## Hash Code and Kernel Names
 
 ### Unique Identification [01:06:14]
+[![01:06:14](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=3974s)
 
 **Hash determines everything**: If operator uses user-defined types, cannot typecast them, so operator name alone determines X, Y, Z types.
 
@@ -444,6 +470,7 @@ When compiled into GraphBLAS library, kernel functions must have full unique nam
 ## Lessons and Design Philosophy
 
 ### Template Reuse [02:03:12]
+[![02:03:12](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=7392s)
 Same template used for:
 - Factory kernels (built-in specializations)
 - Generic kernels (fallback)
@@ -452,6 +479,7 @@ Same template used for:
 All differ only in macro definitions and compilation flags.
 
 ### Macro Layering Philosophy [01:43:00]
+[![01:43:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=6180s)
 Multiple layers of macros calling macros:
 - `GB_EWISEOP` → `GB_BINOP` → `GB_ADD` → `add_gauss(x,y)`
 - Each layer handles different concerns (operation, typecasting, flipping)
@@ -460,6 +488,7 @@ Multiple layers of macros calling macros:
 **Quote**: "Layers upon layers, macros upon macros. What is the bin op? Oh, the bin op is just add. This bin op is one step removed. This ewise op is like 2 steps removed from the actual operator." [01:43:28]
 
 ### Windows Challenges [02:19:00]
+[![02:19:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=8340s)
 - Can't use standard shell commands
 - Forward slash vs backslash issues
 - CMake required (slower but more portable)
@@ -472,14 +501,17 @@ Multiple layers of macros calling macros:
 ## Performance Considerations
 
 ### Function Pointer Overhead [01:20:00]
+[![01:20:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=4800s)
 For iso-valued matrices, reduce-to-scalar only needs to call operator log(N) times maximum (via recursive doubling). Performance of function pointer call doesn't matter.
 
 **Example**: Computing X^N via repeated squaring calls operator only log2(N) times. [01:22:00]
 
 ### JIT vs Generic Trade-offs [00:04:00]
+[![00:04:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=240s)
 If JIT fails and falls back to generic kernel, it may be slow but correct. However, user may want to know JIT failed during development. Need configurability.
 
 ### Compilation Speed [02:14:00]
+[![02:14:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=8040s)
 - Direct compiler call: Fast (one `system()` call)
 - CMake: Slower (5 `system()` calls minimum)
 - Why 22,000 CMake projects in test coverage? Each JIT kernel gets own CMakeLists.txt in build folder (deleted after)

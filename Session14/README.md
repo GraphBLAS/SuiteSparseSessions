@@ -46,6 +46,7 @@
 This session focused on element-wise operations in SuiteSparse GraphBLAS, specifically element-wise add and related operations, with deep dives into parallelism, task management, and the new 32/64-bit integer infrastructure.
 
 ### Element-wise Add vs. Element-wise Union [00:00:46]
+[![00:00:46](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=46s)
 
 **Discussion:**
 - **Element-wise Add**: Performs set union on two matrices of the same size with a binary operator applied at intersections
@@ -60,6 +61,7 @@ This session focused on element-wise operations in SuiteSparse GraphBLAS, specif
 - [00:01:30] - Difference between Add and Union explained
 
 ### Typecast Complexity [00:03:09]
+[![00:03:09](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=189s)
 
 **Discussion:**
 Dr. Davis explains the typecast requirements differ between E-wise Add and E-wise Union, making Union more flexible for user-defined types.
@@ -74,6 +76,7 @@ Dr. Davis explains the typecast requirements differ between E-wise Add and E-wis
 ## Code Structure and Multi-Phase Algorithms
 
 ### Top-Level Method Organization [00:04:03]
+[![00:04:03](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=243s)
 
 **Discussion:**
 The E-wise operations have multiple entry points that eventually funnel into common core methods. The code uses a Boolean flag to distinguish between E-wise Add and E-wise Union behavior.
@@ -86,6 +89,7 @@ The E-wise operations have multiple entry points that eventually funnel into com
 - [00:05:24] - Core working method identified
 
 ### Three-Phase Algorithm Structure [00:23:28]
+[![00:23:28](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=1408s)
 
 **Discussion:**
 E-wise Add uses a multi-phase approach:
@@ -104,6 +108,7 @@ E-wise Add uses a multi-phase approach:
 ## 32-bit vs 64-bit Integer Infrastructure
 
 ### New Matrix Integer Types [00:16:20]
+[![00:16:20](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=980s)
 
 **Discussion:**
 Matrices now have up to three different integer types:
@@ -119,6 +124,7 @@ Matrices now have up to three different integer types:
 - [00:37:01] - Matrix data structure details
 
 ### Macro-based Type Handling [00:42:47]
+[![00:42:47](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=2567s)
 
 **Discussion:**
 Dr. Davis developed a macro system to handle 32/64-bit decisions at runtime without creating thousands of kernel variants. The system uses three pointers (void*, uint32_t*, uint64_t*) where only one of the typed pointers is non-null.
@@ -132,6 +138,7 @@ Dr. Davis developed a macro system to handle 32/64-bit decisions at runtime with
 - [01:09:40] - JIT kernel specialization
 
 ### GB_GET/GB_SET/GB_INC Macros [00:43:33]
+[![00:43:33](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=2613s)
 
 **Discussion:**
 Three fundamental macros handle runtime type selection:
@@ -148,6 +155,7 @@ In JIT kernels, these macros compile to direct array access with no branching.
 ## Workspace Management ("Werk")
 
 ### The Werk Data Structure [00:47:03]
+[![00:47:03](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=2823s)
 
 **Discussion:**
 The "Werk" (German-inspired name for "work") is a workspace structure that serves three purposes:
@@ -164,6 +172,7 @@ The "Werk" (German-inspired name for "work") is a workspace structure that serve
 - [00:53:23] - Integer control explanation
 
 ### Stack-based Workspace with Push/Pop [00:55:36]
+[![00:55:36](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=3336s)
 
 **Discussion:**
 The Werk provides a 16KB static workspace with push/pop operations to avoid malloc overhead for small temporary arrays. This approach reduces malloc calls, which is important for languages like Julia that track allocations.
@@ -176,6 +185,7 @@ The Werk provides a 16KB static workspace with push/pop operations to avoid mall
 - [00:56:23] - Push implementation details
 
 ### Microsoft Compiler Limitations [00:59:08]
+[![00:59:08](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=3548s)
 
 **Discussion:**
 The entire Werk workspace system was necessitated by Microsoft's C compiler not supporting variable-length arrays (VLAs), a standard C99 feature. This forced creation of a manual stack implementation.
@@ -193,6 +203,7 @@ Additionally, user-defined types are limited to 1024 bytes on Windows due to the
 ## Debug Infrastructure
 
 ### Assertion and Checking Philosophy [00:13:24]
+[![00:13:24](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=804s)
 
 **Discussion:**
 Dr. Davis uses extensive debug assertions throughout the code. Matrices can be checked with different levels:
@@ -210,6 +221,7 @@ The `GB_ASSERT_MATRIX_OK` macro expands to full checking when `GB_DEBUG` is defi
 - [00:35:06] - Matrix state assertions
 
 ### Debug Code as Documentation [01:27:10]
+[![01:27:10](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=5230s)
 
 **Discussion:**
 Dr. Davis includes debug code that re-implements algorithms in simple single-threaded form. This serves dual purposes: runtime verification and code documentation.
@@ -224,6 +236,7 @@ Dr. Davis includes debug code that re-implements algorithms in simple single-thr
 ## Parallelism and Task Management
 
 ### Hypersparse Vector Mappings [00:24:31]
+[![00:24:31](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=1471s)
 
 **Discussion:**
 When matrices are hypersparse, creating mappings between vector IDs is crucial:
@@ -242,6 +255,7 @@ These mappings avoid expensive hypersparse lookups during computation.
 - [01:29:22] - Workspace array scattering
 
 ### Parallel Set Union of Hyperlists [01:21:58]
+[![01:21:58](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=4918s)
 
 **Discussion:**
 When both A and B are hypersparse, computing the set union of their hyperlists is done in parallel. The algorithm:
@@ -259,6 +273,7 @@ When both A and B are hypersparse, computing the set union of their hyperlists i
 - [01:24:46] - Task coordination
 
 ### Task Structure and Types [01:35:27]
+[![01:35:27](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=5727s)
 
 **Discussion:**
 The task list uses a struct array to manage parallel work. Tasks come in two varieties:
@@ -276,6 +291,7 @@ The task struct contains start/finish positions for up to 4 different matrices (
 - [01:47:24] - Multi-matrix coordination
 
 ### EK Slice vs EY Slice [01:39:50]
+[![01:39:50](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=5990s)
 
 **Discussion:**
 Two different slicing strategies:
@@ -290,6 +306,7 @@ Two different slicing strategies:
 - [01:43:43] - Multi-matrix coherence requirement
 
 ### P_Slice: Recursive Work Partitioning [01:56:00]
+[![01:56:00](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=6960s)
 
 **Discussion:**
 The P_Slice method recursively partitions irregular work into balanced tasks:
@@ -312,6 +329,7 @@ Comes in two variants:
 - [02:06:02] - Approximate vs perfect balance trade-offs
 
 ### Slice_Vector for Dense Columns [02:08:49]
+[![02:08:49](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=7729s)
 
 **Discussion:**
 When a coarse task contains a single vector with too much work, the Slice_Vector method divides that one vector into multiple fine tasks across the 3-4 input/output matrices consistently.
@@ -327,6 +345,7 @@ When a coarse task contains a single vector with too much work, the Slice_Vector
 ## Code Style and Naming Conventions
 
 ### Greppable Function Calls [00:27:53]
+[![00:27:53](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=1673s)
 
 **Discussion:**
 Dr. Davis enforces a strict style: function calls must always have exactly one space before the opening parenthesis. This makes grepping for function usage reliable and fast.
@@ -339,6 +358,7 @@ Dr. Davis enforces a strict style: function calls must always have exactly one s
 - [00:28:26] - Cleve Moler anecdote
 
 ### Memory Management Philosophy [01:36:16]
+[![01:36:16](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=5776s)
 
 **Discussion:**
 Every malloc'd pointer in GraphBLAS tracks its size consistently. This enables:
@@ -354,6 +374,7 @@ Every malloc'd pointer in GraphBLAS tracks its size consistently. This enables:
 - [01:37:15] - Matrix content structure example
 
 ### Type Code Enumerations [01:12:43]
+[![01:12:43](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=4363s)
 
 **Discussion:**
 GraphBLAS has two separate type code enumerations - an internal one from early development and a newer spec-defined one. They differ in numbering but both are maintained.
@@ -368,6 +389,7 @@ GraphBLAS has two separate type code enumerations - an internal one from early d
 ## Performance Considerations
 
 ### Mask Application Decisions [00:21:11]
+[![00:21:11](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=1271s)
 
 **Discussion:**
 The algorithm decides whether to apply the mask during computation or afterward based on sparsity. A complemented sparse mask is particularly expensive to apply during computation.
@@ -380,6 +402,7 @@ The algorithm decides whether to apply the mask during computation or afterward 
 - [00:21:46] - Performance trade-offs
 
 ### Thread and Chunk Sizing [01:06:35]
+[![01:06:35](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=3995s)
 
 **Discussion:**
 GraphBLAS dynamically adjusts thread count based on work size using a "chunk" parameter (default 64K). The ratio of work to chunk size determines threads used, up to the maximum.
@@ -392,6 +415,7 @@ GraphBLAS dynamically adjusts thread count based on work size using a "chunk" pa
 - [01:07:09] - Dynamic thread control
 
 ### Task Count Strategy [01:49:48]
+[![01:49:48](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=6588s)
 
 **Discussion:**
 GraphBLAS typically creates many more tasks than threads (32x by default) to enable load balancing through dynamic scheduling. Imperfect task balance is acceptable when there are enough tasks.
@@ -406,6 +430,7 @@ GraphBLAS typically creates many more tasks than threads (32x by default) to ena
 ## Broader Usage Patterns
 
 ### GB_Add Usage Beyond Element-wise [00:10:00]
+[![00:10:00](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=600s)
 
 **Discussion:**
 The GB_add method is used in multiple contexts:
@@ -422,6 +447,7 @@ The GB_add method is used in multiple contexts:
 - [00:10:53] - Pending tuples explained
 
 ### Disjoint Matrices Optimization [00:09:38]
+[![00:09:38](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=578s)
 
 **Discussion:**
 A special flag `A_and_B_disjoint` enables optimizations when matrices have no overlapping entries (common during pending tuple insertion).
@@ -434,6 +460,7 @@ A special flag `A_and_B_disjoint` enables optimizations when matrices have no ov
 - [00:11:47] - Wait operation usage
 
 ### EY_Slice Usage Across Methods [02:13:15]
+[![02:13:15](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=7995s)
 
 **Discussion:**
 The EY_slice method is used by at least 12 different GraphBLAS operations: element-wise add, element-wise multiply, element-wise union, mask application, and 8 different assign variants.

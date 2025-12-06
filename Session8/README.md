@@ -53,6 +53,7 @@ This session provides a detailed walkthrough of algorithm implementation in Suit
 ---
 
 ## Code Organization and Structure [00:00:18]
+[![00:00:18](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=18s)
 
 ### Source Directory Layout
 "So this is so we're in GraphBLAS. And I just released GraphBLAS 9.3.1. Now all the source files have been restructured so it's easier to follow."
@@ -67,6 +68,7 @@ Key principle: Algorithms that only work on structure (not data-dependent) are n
 ---
 
 ## Debugging and Error Handling [00:19:30]
+[![00:19:30](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=1170s)
 
 ### Assertion System
 "If I want to turn on the assertions, I can go to Gb_debug.h and recompile the code, then all these assertions become active."
@@ -84,6 +86,7 @@ Key principle: Algorithms that only work on structure (not data-dependent) are n
 - Error strings are helpful for Python wrappers that raise exceptions with error messages
 
 ### Memory Debugging [00:27:00]
+[![00:27:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=1620s)
 "I have my own valgrind. I have a table of all the mallocs I've ever done, and I delete the ones I free. So it's the list of all live malloc spaces with their sizes."
 
 Features:
@@ -95,6 +98,7 @@ Features:
 ---
 
 ## Matrix Representation and Formats [00:05:00]
+[![00:05:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=300s)
 
 ### Internal Representation
 "All the kernels are agnostic to storage format. When you're looking at code internally, the code is written as if all matrices are stored by column. If I have a CSR matrix and I call this code, the i's and j's are reversed."
@@ -108,6 +112,7 @@ Key concepts:
 ---
 
 ## Mask Handling [00:12:00]
+[![00:12:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=720s)
 
 ### GB_get_mask Function
 "If the mask is present and iso-valued but not structural, I can make it structural. If the iso value is nonzero, it's always a structural mask. If the value is 0, you have no mask at all."
@@ -120,6 +125,7 @@ Optimizations:
 ---
 
 ## User-Callable Method Structure [00:08:00]
+[![00:08:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=480s)
 
 ### Standard Workflow for All Methods
 "Every Grb method has this workflow: I log where I am, I start the burble, I check my input matrices, I grab the descriptor, I grab the mask, and I call the workhorse internal method."
@@ -137,6 +143,7 @@ Typical sequence:
 ---
 
 ## Type Compatibility and Validation [00:33:00]
+[![00:33:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=1980s)
 
 ### Type Checking
 "I have to check type compatibility, dimension compatibility, and the whole mask-accum process with the types."
@@ -150,6 +157,7 @@ Key validation points:
 ---
 
 ## Operator Management [00:31:00]
+[![00:31:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=1860s)
 
 ### Operator Simplification
 "I simplify some of the operators down. There's a lot of really strange Boolean operators in the spec, like Boolean divide. I prune them down to a smaller set of actual useful operators."
@@ -161,6 +169,7 @@ Key validation points:
 - Reduces code branches by eliminating duplicate functionality
 
 ### Operator Flipping [00:50:00]
+[![00:50:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=3000s)
 
 "Unfortunately I use the word 'flip' for 2 different senses."
 
@@ -182,6 +191,7 @@ GB_flip(i) = -(i+2)  // Maps 0→-2, 1→-3, 3→-5, etc.
 ---
 
 ## Wait and Pending Operations [00:42:00]
+[![00:42:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=2520s)
 
 ### Matrix State Management
 "This matrix wait will occur if the input matrix has any pending entries or if it has zombies. If it's just jumbled, I'll let it go because the algorithm's agnostic."
@@ -198,6 +208,7 @@ GB_flip(i) = -(i+2)  // Maps 0→-2, 1→-3, 3→-5, etc.
 ---
 
 ## Apply Operation Deep Dive [00:45:00]
+[![00:45:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=2700s)
 
 ### Three Main Execution Paths
 
@@ -225,6 +236,7 @@ GB_flip(i) = -(i+2)  // Maps 0→-2, 1→-3, 3→-5, etc.
 ---
 
 ## Operator Type Handling [01:19:00]
+[![01:19:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=4740s)
 
 ### Positional Operators
 "The positional operators are either 32-bit, 64-bit, or Boolean. You can apply TRIL as a Boolean operator."
@@ -236,6 +248,7 @@ Built-in positional operators hardcoded (not in factory):
 - Direct implementation in switch-case (always available, cannot be disabled)
 
 ### ISO Value Handling [01:13:00]
+[![01:13:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=4380s)
 "What if you have a matrix that's all ones and you apply a unary operator that replaces all entries with their row index? It's not ISO now. I have to expand from convert an ISO matrix to a non-ISO matrix."
 
 ISO value complications:
@@ -246,6 +259,7 @@ ISO value complications:
 ---
 
 ## Parallel Execution [01:20:00]
+[![01:20:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=4800s)
 
 ### Task Slicing Strategy
 "I want to create 32 tasks per thread. If I have 10 threads, I'll create 320 tasks. I cut the matrix up into 320 pieces."
@@ -272,6 +286,7 @@ Each task described by 3 integers:
 - Tasks are large, so dynamic scheduling important for load balancing
 
 ### Column Index Lookup [01:35:00]
+[![01:35:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=5700s)
 "If it's hypersparse, you have to look it up: `j = Ah[k]`. If it's not hypersparse, `j = k`."
 
 Handles different sparsity formats:
@@ -282,6 +297,7 @@ Handles different sparsity formats:
 ---
 
 ## Factory Kernel System [01:45:00]
+[![01:45:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=6300s)
 
 ### Factory Organization
 "The factory kernels can be disabled entirely. They're a little bit limiting but rather than creating other methods, I just put them in a big switch case."
@@ -298,6 +314,7 @@ Example factory kernel: `GB_uop_apply__sqrt_fp32_fp32.c`
 - Includes template algorithm code
 
 ### Three-tier Execution Strategy [01:50:00]
+[![01:50:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=6600s)
 
 **Tier 1: Factory kernels** (fastest)
 - Pre-compiled for common (operator, type) combinations
@@ -318,6 +335,7 @@ Example factory kernel: `GB_uop_apply__sqrt_fp32_fp32.c`
 ---
 
 ## Bind First/Second Operations [01:55:00]
+[![01:55:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=6900s)
 
 ### Binary Operator with Scalar
 "You're calling GrB_apply with operator SECOND, you pass in a scalar and a matrix. Oh, that's just identity."
@@ -337,6 +355,7 @@ Both have separate factory kernels and JIT paths.
 ---
 
 ## Index Unary Operators [01:59:00]
+[![01:59:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=7140s)
 
 ### User-Defined Index Unary Operators
 "This is calling a function pointer that has to be given the row and column indices, and I don't know if you're going to use them. Maybe you just want the thunk. I'll give them to you anyway, sorry."
@@ -352,6 +371,7 @@ Both have separate factory kernels and JIT paths.
 ---
 
 ## JIT Kernel Selection [02:02:00]
+[![02:02:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=7320s)
 
 ### Algorithm Variants
 "If I know at compile time it depends on J, I use the more complex algorithm. Otherwise I can use the simpler algorithm."
@@ -369,6 +389,7 @@ Both have separate factory kernels and JIT paths.
 ---
 
 ## Accum-Mask Phase [02:04:00]
+[![02:04:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=7440s)
 
 ### Final Phase of All Operations
 "At the end of all these primary methods there's an accum-mask phase."
@@ -423,6 +444,7 @@ Aggressive use of shallow copies:
 ## Technical Details
 
 ### Work Space Management [00:10:00]
+[![00:10:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=600s)
 "I have this little strangely misspelled thing called `work_space`. It's a statically declared array of bytes on the stack used for small things that would otherwise require malloc."
 
 Purpose:
@@ -431,6 +453,7 @@ Purpose:
 - Falls back to malloc if space insufficient
 
 ### Typecasting in Factory Kernels [01:52:00]
+[![01:52:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=6720s)
 "My operators don't do typecasting unless it's identity operator. Then I typecast - those are typecasting operators."
 
 Only identity operator factories include typecast logic:

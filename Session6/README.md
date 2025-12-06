@@ -290,6 +290,7 @@ This session continues from Session 5, diving deep into how the GraphBLAS JIT (J
 ---
 
 ### Macrofy Preface [01:01:00]
+[![01:01:00](https://img.youtube.com/vi/Mb0AspQ2IhE/default.jpg)](https://www.youtube.com/watch?v=Mb0AspQ2IhE&t=3660s)
 
 **Discussion:** Initial setup of generated source file.
 
@@ -466,6 +467,7 @@ This session continues from Session 5, diving deep into how the GraphBLAS JIT (J
 ---
 
 ### CUDA Minimalism [01:17:00]
+[![01:17:00](https://img.youtube.com/vi/Mb0AspQ2IhE/default.jpg)](https://www.youtube.com/watch?v=Mb0AspQ2IhE&t=4620s)
 
 **Discussion:** How little CUDA-specific code exists in the JIT.
 
@@ -482,6 +484,7 @@ This session continues from Session 5, diving deep into how the GraphBLAS JIT (J
 ---
 
 ## Session Conclusion [01:17:00]
+[![01:17:00](https://img.youtube.com/vi/Mb0AspQ2IhE/default.jpg)](https://www.youtube.com/watch?v=Mb0AspQ2IhE&t=4620s)
 
 **Coverage Summary:**
 - JIT architecture and global state management

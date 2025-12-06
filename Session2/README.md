@@ -373,6 +373,7 @@ Every algorithm has an "input guard" that checks for tolerable pending work:
 **Key Quote**: "Many of my algorithms will start off looking at their input matrices and asking, 'Is there pending work in this matrix that I cannot tolerate? If so, do a GrB matrix wait on that input.' So finish the work."
 
 ### Code Readability and Grep-ability [01:35:20]
+[![01:35:20](https://img.youtube.com/vi/Am0QfqAFHqs/default.jpg)](https://www.youtube.com/watch?v=Am0QfqAFHqs&t=5720s)
 
 Intentional naming choices for searchability:
 - "zombie" instead of generic marker
