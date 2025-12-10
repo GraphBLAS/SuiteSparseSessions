@@ -16,7 +16,7 @@ Session Date: August 1, 2024
   - [Primary Entry Point: jitifyer_load](#primary-entry-point-jitifyer_load-002100---002300)
   - [Fast Path Lookup (RUN Mode)](#fast-path-lookup-run-mode-002900---003200)
   - [Hash Table Entry Structure](#hash-table-entry-structure-003000---003100)
-  - [Prejit Kernel Handling](#prejit-kernel-handling-003600---003830)
+  - [PreJIT Kernel Handling](#prejit-kernel-handling-003600---003830)
   - [User Operator Special Cases](#user-operator-special-cases-003900---004400)
 - [Kernel Loading and Compilation](#kernel-loading-and-compilation)
   - [File Locking for Multi-Process Safety](#file-locking-for-multi-process-safety-005100---005300)
@@ -53,13 +53,13 @@ This session continues from Session 5, diving deep into how the GraphBLAS JIT (J
 
 **Discussion:** The JIT system requires global state to maintain persistent information across GraphBLAS sessions, including hash tables, cache folder paths, compiler settings, and C flags.
 
-**Key Quote:** "I don't like globals. Globals are evil. But I have to have them here because you call Grb.Mxm, and I jit a kernel, and I hash stick in a hash table, and you call it again. And I say, 'Oh, I've seen this one before.' I've got to go find the function pointer."
+**Key Quote:** "I don't like globals. Globals are evil. But I have to have them here because you call `GrB_mxm`, and I jit a kernel, and I stick it a hash table, and you call it again. And I say, 'Oh, I've seen this one before.' I've got to go find the function pointer."
 
 **Technical Details:**
-- Core JIT implementation in `jitifyer.c` and `jitifyer.h` (2,700 lines of code)
+- Core JIT implementation in `GB_jitifyer.c` and `GB_jitifyer.h` (2,700 lines of code)
 - Hash table stores compiled kernel function pointers
 - OpenMP critical sections protect hash table access from multiple user threads
-- File locking protects against multiple GraphBLAS processes accessing same cache
+- File locking protects against multiple GraphBLAS processes accessing same cache (see NOTE in Session 5)
 
 **Timestamp:** [00:06:00]
 
@@ -85,10 +85,10 @@ This session continues from Session 5, diving deep into how the GraphBLAS JIT (J
 
 **Discussion:** How different GraphBLAS versions maintain separate cache folders and how version conflicts are handled.
 
-**Key Quote:** "By default, the cache folder is like on Linux, it's .suitesparse/grb.9.3.0, so if you have a different version like 9.3.1 or 9.2.1, it's a different folder."
+**Key Quote:** "By default, the cache folder is like on Linux, it's ~/.SuiteSparse/GrB9.3.0, so if you have a different version like 9.3.1 or 9.2.1, it's a different folder."
 
 **Technical Details:**
-- Default cache: `.suitesparse/grb.9.3.0` on Linux
+- Default cache: `~/.SuiteSparse/GrB9.3.0` on Linux
 - Query function checks compiled kernel version on load
 - Mismatched versions cause kernel deletion and recompilation
 - Kernel query validates: version number, hash function, operator strings, monoid identity values
@@ -105,7 +105,7 @@ This session continues from Session 5, diving deep into how the GraphBLAS JIT (J
 
 **States:**
 
-1. **OFF** - Hash table is empty, no JIT kernels used (not even prejit)
+1. **OFF** - Hash table is empty, no JIT kernels used (not even PreJIT)
 2. **PAUSE** - Don't use JIT kernels, but keep them in hash table
 3. **RUN** - Use kernels already in hash table, but don't load from disk or compile new ones
 4. **LOAD** - Can use hash table and load from disk, but cannot compile
@@ -121,12 +121,12 @@ This session continues from Session 5, diving deep into how the GraphBLAS JIT (J
 
 **Discussion:** Using RUN mode to deploy GraphBLAS on platforms without compilers (iPad, iPhone).
 
-**Key Quote:** "You exercise GraphBLAS, create it in development, let it compile all its jit kernels at once, run through all its paces. You get a thousand jit kernels. You're done. Now you want to distribute this to the world. So you take these jit kernels, you put them back into GraphBLAS as a prejit kernel, you recompile GraphBLAS."
+**Key Quote:** "You exercise GraphBLAS, create it in development, let it compile all its jit kernels at once, run through all its paces. You get a thousand jit kernels. You're done. Now you want to distribute this to the world. So you take these jit kernels, you put them back into GraphBLAS as a PreJIT kernel, you recompile GraphBLAS."
 
 **Workflow:**
 1. Development: Run with JIT fully ON, exercise all code paths
 2. Collect compiled kernels
-3. Bake kernels into GraphBLAS as prejit kernels
+3. Bake kernels into GraphBLAS as PreJIT kernels
 4. Deploy to target platform with JIT set to RUN mode
 5. No compiler needed on target platform (iOS, etc.)
 
@@ -146,7 +146,7 @@ This session continues from Session 5, diving deep into how the GraphBLAS JIT (J
 1. Check if JIT is disabled (OFF/PAUSE) → return no value
 2. Try fast lookup in hash table (RUN mode, no critical section)
 3. If not found, enter critical section for full lookup/load/compile
-4. Check prejit kernels
+4. Check PreJIT kernels
 5. Load from disk if available
 6. Compile if necessary
 
@@ -180,21 +180,21 @@ This session continues from Session 5, diving deep into how the GraphBLAS JIT (J
 - Kernel name/suffix string (for user-defined operators/types)
 - `dlopen` handle (library pointer)
 - Function pointer to actual kernel
-- Prejit index (for prejit kernels)
+- PreJIT index (for PreJIT kernels)
 - Checked flag (for validation status)
 
 **Timestamp:** [00:30:00]
 
 ---
 
-### Prejit Kernel Handling [00:36:00 - 00:38:30]
+### PreJIT Kernel Handling [00:36:00 - 00:38:30]
 
 **Discussion:** Special handling for kernels baked into GraphBLAS at compile time.
 
-**Key Quote:** "A prejit kernel has been baked into GraphBLAS already. I don't have to compile or load, it's just sitting right there. But I check it with the query function to make sure it's valid."
+**Key Quote:** "A PreJIT kernel has been baked into GraphBLAS already. I don't have to compile or load, it's just sitting right there. But I check it with the query function to make sure it's valid."
 
 **Process:**
-1. Look up in prejit kernel table (configured by CMake)
+1. Look up in PreJIT kernel table (configured by CMake)
 2. Call query function to validate
 3. Check version, hash, operator strings, identity values
 4. If valid: use kernel
@@ -283,7 +283,7 @@ This session continues from Session 5, diving deep into how the GraphBLAS JIT (J
 - Preface: includes and headers
 - Family-specific code generation
 - Query function generation
-- All handled in `jitifyer.c`
+- All handled in `GB_jitifyer.c`
 
 **Timestamp:** [01:00:00]
 
@@ -455,9 +455,9 @@ This session continues from Session 5, diving deep into how the GraphBLAS JIT (J
 ### Code Organization [00:05:00 - 00:06:30]
 
 **Key Files:**
-- `jitifyer.c` - 2,700 lines, core JIT logic
-- `jitifyer.h` - header file
-- `gb_file.c` - low-level file operations (portable `dlopen`, file locking)
+- `GB_jitifyer.c` - 2,700 lines, core JIT logic
+- `GB_jitifyer.h` - header file
+- `GB_file.c` - low-level file operations (portable `dlopen`, file locking)
 - Macrofy functions - separate files for encodify, enumify, macrofy
 
 **Design Principle:** Keep static variables in single file to avoid globals
@@ -471,7 +471,7 @@ This session continues from Session 5, diving deep into how the GraphBLAS JIT (J
 
 **Discussion:** How little CUDA-specific code exists in the JIT.
 
-**Key Quote:** "If you look at jitifyer.c to see where it talks about CUDA, that's it. Every word as they mention the word CUDA in the JIT. It's so very terse."
+**Key Quote:** "If you look at GB_jitifyer.c to see where it talks about CUDA, that's it. Every word as they mention the word CUDA in the JIT. It's so very terse."
 
 **CUDA references are minimal:**
 - Backend selection for `.cu` files
@@ -491,7 +491,7 @@ This session continues from Session 5, diving deep into how the GraphBLAS JIT (J
 - Thread and process synchronization
 - Five JIT control modes (OFF, PAUSE, RUN, LOAD, ON)
 - Hash table lookups and fast paths
-- Prejit kernel handling
+- PreJIT kernel handling
 - File locking and multi-process safety
 - Kernel loading from disk
 - Macrofy system for source code generation
