@@ -22,7 +22,7 @@
   - [Hypersparse Vector Mappings](#hypersparse-vector-mappings-002431)
   - [Parallel Set Union of Hyperlists](#parallel-set-union-of-hyperlists-012158)
   - [Task Structure and Types](#task-structure-and-types-013527)
-  - [EK Slice vs EY Slice](#ek-slice-vs-ey-slice-013950)
+  - [Ek Slice vs Ewise Slice](#ek-slice-vs-ewise-slice-013950)
   - [P_Slice: Recursive Work Partitioning](#p_slice-recursive-work-partitioning-015600)
   - [Slice_Vector for Dense Columns](#slice_vector-for-dense-columns-020849)
 - [Code Style and Naming Conventions](#code-style-and-naming-conventions)
@@ -36,7 +36,7 @@
 - [Broader Usage Patterns](#broader-usage-patterns)
   - [GB_Add Usage Beyond Element-wise](#gb_add-usage-beyond-element-wise-001000)
   - [Disjoint Matrices Optimization](#disjoint-matrices-optimization-000938)
-  - [EY_Slice Usage Across Methods](#ey_slice-usage-across-methods-021315)
+  - [Ewise_Slice Usage Across Methods](#ewise_slice-usage-across-methods-021315)
 - [Key Takeaways](#key-takeaways)
 
 ---
@@ -290,19 +290,19 @@ The task struct contains start/finish positions for up to 4 different matrices (
 - [01:42:34] - Coarse vs fine tasks explained
 - [01:47:24] - Multi-matrix coordination
 
-### EK Slice vs EY Slice [01:39:50]
+### Ek Slice vs Ewise Slice [01:39:50]
 [![01:39:50](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=5990s)
 
 **Discussion:**
 Two different slicing strategies:
-- **EK Slice**: For single matrix - divides entries (E) uniformly and finds vectors (K) they fall into, may split vectors
-- **EY Slice**: For multiple matrices - must maintain coherent slicing across all input/output matrices
+- **Ek Slice**: For single matrix - divides entries (E) uniformly and finds vectors (K) they fall into, may split vectors
+- **Ewise Slice**: For multiple matrices - must maintain coherent slicing across all input/output matrices
 
 **Key Quote:**
-> "EK slice is slicing the entries and finding the K's that they're in. This is easy to do but only really works nicely if I have one matrix to deal with. If I have lots of matrices, I have to make slicing that's coherent across all the different matrices." [01:43:43]
+> "ek_slice is slicing the entries and finding the K's that they're in. This is easy to do but only really works nicely if I have one matrix to deal with. If I have lots of matrices, I have to make slicing that's coherent across all the different matrices." [01:43:43]
 
 **Timestamps:**
-- [01:39:50] - EK slice explained with diagram
+- [01:39:50] - Ek slice explained with diagram
 - [01:43:43] - Multi-matrix coherence requirement
 
 ### P_Slice: Recursive Work Partitioning [01:56:00]
@@ -459,11 +459,11 @@ A special flag `A_and_B_disjoint` enables optimizations when matrices have no ov
 - [00:09:38] - Disjoint flag introduction
 - [00:11:47] - Wait operation usage
 
-### EY_Slice Usage Across Methods [02:13:15]
+### Ewise_Slice Usage Across Methods [02:13:15]
 [![02:13:15](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=7995s)
 
 **Discussion:**
-The EY_slice method is used by at least 12 different GraphBLAS operations: element-wise add, element-wise multiply, element-wise union, mask application, and 8 different assign variants.
+The ewise_slice method is used by at least 12 different GraphBLAS operations: element-wise add, element-wise multiply, element-wise union, mask application, and 8 different assign variants.
 
 **Key Quote:**
 > "Lots of algorithms need this slicing method: 8 assign methods, element-wise add, element-wise multiply, element-wise union, and the masker. That's 12 total methods." [02:13:39]
