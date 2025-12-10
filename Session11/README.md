@@ -30,7 +30,7 @@
   - [Type Encoding](#type-encoding-012325)
 - [Typecasting Complexity](#typecasting-complexity-012700)
   - [Five Different Types](#five-different-types-012717)
-  - [The GB_BUILD_DUPE Macro](#the-gb_build_dupe-macro-012829)
+  - [The GB_BUILD_DUP Macro](#the-gb_build_dup-macro-012829)
 - [Performance Optimizations](#performance-optimizations-003540)
   - [Fast Build Detection](#fast-build-detection-003603)
   - [Greased Lightning Case](#greased-lightning-case-010000)
@@ -87,7 +87,7 @@ The GraphBLAS spec states that duplicate operators must be associative and commu
 
 Dr. Davis's implementation guarantees that if there are duplicates, the operator is applied exactly in order. This enables non-associative and non-commutative operators like "first" and "second."
 
-**Key Quote:** "I allow the dupe to be non-associative and not commutative, and I guarantee that if there are duplicates, I apply the operator exactly in order. Just so any one duplicate cannot be summed in parallel."
+**Key Quote:** "I allow the dup to be non-associative and not commutative, and I guarantee that if there are duplicates, I apply the operator exactly in order. Just so any one duplicate cannot be summed in parallel."
 
 ### Motivation: Pending Updates [00:08:36]
 [![00:08:36](https://img.youtube.com/vi/InpR7kaKKbY/default.jpg)](https://www.youtube.com/watch?v=InpR7kaKKbY&t=516s)
@@ -247,7 +247,7 @@ In the most complex case, the build operation may involve 5 different types:
 
 **Key Quote:** "The generic kernel is an ugly beast, because these 5 types, everything has to be cast to everything."
 
-### The GB_BUILD_DUPE Macro [01:28:29]
+### The GB_BUILD_DUP Macro [01:28:29]
 [![01:28:29](https://img.youtube.com/vi/InpR7kaKKbY/default.jpg)](https://www.youtube.com/watch?v=InpR7kaKKbY&t=5309s)
 
 The duplicate operator macro handles all necessary typecasting:
