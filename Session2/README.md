@@ -365,7 +365,7 @@ The four formats form a coherent family that share code:
 - Sometimes all three non-bitmap formats grouped together
 - Adding a radically different format (like B-tree based) would be more disruptive
 
-**Key Quote**: "These families of 8, this family of 8 is fortunate, and they all kind of look alike. It would be a much more breaking change to add a new format that's totally different."
+**Key Quote**: "This family of 8 is fortunate since they all kind of look alike. It would be a much more breaking change to add a new format that's totally different."
 
 ### Algorithmic Tolerance Patterns [01:39:00 - 01:42:00]
 
@@ -376,7 +376,9 @@ Every algorithm has an "input guard" that checks for tolerable pending work:
 - Different algorithms have different tolerance profiles
 - Wait means "finish everything" not just one type of pending work
 
-**Key Quote**: "Many of my algorithms will start off looking at their input matrices and asking, 'Is there pending work in this matrix that I cannot tolerate? If so, do a GrB matrix wait on that input.' So finish the work."
+**Key Quote**: "Many of my algorithms will start off looking at their input
+matrices and asking, 'Is there pending work in this matrix that I cannot
+tolerate? If so, do a GrB_Matrix_Wait on that input.' So finish the work."
 
 ### Code Readability and Grep-ability [01:35:20]
 [![01:35:20](https://img.youtube.com/vi/Am0QfqAFHqs/default.jpg)](https://www.youtube.com/watch?v=Am0QfqAFHqs&t=5720s)
