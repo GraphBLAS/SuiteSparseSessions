@@ -51,12 +51,10 @@ Dr. Davis explains how reduce-to-vector is elegantly implemented as a matrix-vec
 **Key Implementation Strategy:**
 The reduce-to-vector operation is implemented in only 218 lines of code by converting it into a matrix-vector multiply problem.
 
-> "This is so powerful and so simple. It takes 218 lines to express it. And that's the entire algorithm. We're done. It's that simple and that powerful." [00:11:11]
-
 **Technical Approach:**
 - Creates an iso-valued dense vector B (constant time to construct, ~300 bytes)
-- Uses first operator as the multiplicative operator in a semiring
-- The monoid provided by the user becomes the additive operator
+- Uses FIRST operator as the multiplicative operator in a semiring
+- The monoid provided by the user becomes the additive monoid of the semiring
 - Delegates to the full matrix-vector multiply machinery (15,000 lines of optimized code)
 
 > "Why implement all of that algorithm for reduce to vector when I'm already doing all that work for matrix vector multiply? Let's just use that to do reduce the vector and then get all this richness of different algorithms and different optimizations and parallelizations." [00:12:47]
@@ -164,7 +162,7 @@ The function then recursively calls itself to finish the reduction (usually on C
 [![00:42:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=2520s)
 
 **Why Panels?**
-Direct scalar reduction (s += s += s) is inefficient even on single threads. Panel reduction enables vectorization.
+Direct scalar reduction (s += Ax [p]) is inefficient even on single threads. Panel reduction enables vectorization.
 
 **Panel Size:**
 - Default: 16 elements
@@ -194,8 +192,6 @@ Floating-point operations generally cannot short-circuit:
 **Panel-Based Terminal Checking:**
 Instead of checking after every value, checks every 256 panels for performance.
 
-> "I check the terminal condition, and I just count how many terminal. This is also easy to vectorize. Even a break out of this is not so good. It's actually faster just to check to see if I found any this way." [00:48:41]
-
 [00:47:02]
 
 ### Parallel Panel Reduction [00:49:00 - 00:53:00]
@@ -208,8 +204,6 @@ Instead of checking after every value, checks every 256 panels for performance.
 
 **Atomic Early Exit:**
 When a task finds a terminal value, it sets an atomic flag so other tasks can skip work.
-
-> "If a task is already started, it won't get terminated unless it finds itself a terminal condition. But you see, I have 64, I typically allocate a lot of tasks. If you have 10 threads, I'll create 64 times that number of tasks, so I have 640 tasks." [00:51:52]
 
 **Relaxed Termination:**
 Tasks that have already started continue to completion, but new tasks check the atomic flag and skip if terminal value found.
@@ -271,7 +265,7 @@ Only available for specific built-in monoids:
 **Implementation:**
 Big switch case based on monoid opcode, calling pre-compiled optimized kernels.
 
-**Location:** `FactoryKernels/` folder, e.g., `GB_red_*` files
+**Location:** `GraphBLAS/FactoryKernels/` folder, e.g., `GB_red_*` files
 
 [00:41:12]
 
@@ -287,10 +281,10 @@ Use the same two templates as factory kernels but compile at runtime for:
 [![00:59:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=3540s)
 
 **Fallback Implementation:**
-When JIT is disabled, uses function pointers and memcpy operations.
+When JIT is disabled, uses function pointers and memcpy operations (for each scalar).
 
 **Performance:**
-> "Everything's mem copies and function pointers... It's gonna be slow. Well, yeah, but it's scalar code. It's calling everything once, so it doesn't matter." [01:02:00]
+> "Everything's memcpy' and function pointers... It's gonna be slow. Well, yeah, but it's scalar code. It's calling everything once, so it doesn't matter." [01:02:00]
 
 [00:59:07]
 
@@ -312,7 +306,7 @@ Reduce-to-scalar is an outlier in GraphBLAS operations:
 > "GrB reduced to scalar is an outlier. It uses a C scalar, which is evil for one... you can apply an accumulator, but you cannot pass a mask." [01:00:41]
 
 **Different from Standard Accumulator:**
-> "There's no bypass the accumulator operator, because there's a C scalar which is always present. When you have an accumulator and there's no entry present, it behaves different. This is different. It's always present." [01:02:25]
+> "There's no bypassing the accumulator operator, because there's a C scalar which is always present. When you have an accumulator and there's no entry present, it behaves different. This is different. It's always present." [01:02:25]
 
 **Implementation Choice:**
 Rather than reusing the general accumulator-mask machinery, Tim hard-coded a special path using function pointers.
@@ -341,8 +335,6 @@ Returns function pointers for type casting between all built-in types (13x13 mat
 **Usage:**
 Used in generic kernels and accumulator operations where performance of a single call doesn't matter.
 
-> "If you reduce a matrix of a billion entries down to a scalar, and I call one function pointer a few times, you'll never notice." [01:04:54]
-
 [01:02:59]
 
 ---
@@ -353,7 +345,7 @@ Used in generic kernels and accumulator operations where performance of a single
 [![00:17:00](https://img.youtube.com/vi/JG-gh5q1o6o/default.jpg)](https://www.youtube.com/watch?v=JG-gh5q1o6o&t=1020s)
 
 **Challenge:**
-For reduce-to-vector, need a first operator for the multiplicative part of the semiring.
+For reduce-to-vector, need a FIRST operator for the multiplicative part of the semiring.
 
 **Solution for User-Defined Types:**
 Creates a special operator with opcode `GB_FIRST_opcode` but applied to user-defined type.
@@ -362,8 +354,6 @@ Creates a special operator with opcode `GB_FIRST_opcode` but applied to user-def
 
 **Implementation:**
 Just a memcpy operation of the appropriate byte size for the user-defined type.
-
-> "It's just a copy. It's easy. You know what it is. It's copy those bytes over. If it's 12 bytes, copy the 12 bytes. If it's 20 bytes, copy the 20 bytes." [00:19:00]
 
 [00:17:43]
 
