@@ -16,7 +16,7 @@
 - [Implications for Dense Operations](#implications-for-dense-operations)
   - [Dense Vector Results](#dense-vector-results-010509---011100)
 - [Matrix Multiply Variants](#matrix-multiply-variants)
-  - [Saxby Methods Overview](#saxby-methods-overview-011200---011305)
+  - [Saxpy Methods Overview](#saxpy-methods-overview-011200---011305)
 - [Next Steps and JIT Discussion](#next-steps-and-jit-discussion)
   - [Transition to JIT Focus](#transition-to-jit-focus-011305---012000)
 - [Session Conclusion](#session-conclusion)
@@ -37,8 +37,8 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 
 **Key Points:**
 - Four fundamental matrix formats: full, bitmap, sparse, and hyper-sparse
-- Four parallelism variants for operations: coarse Gustavson, fine Gustavson, coarse hash, fine hash
-- The Saxby-3 method implements Gustavson's algorithm modified for sparse matrix multiplication
+- Four parallelism variants for mxm operations (in saxpy-3 method): coarse Gustavson, fine Gustavson, coarse hash, fine hash
+- The Saxpy-3 method implements Gustavson's algorithm modified for sparse matrix multiplication
 - Different variants handle workspace management differently: coarse grain gives each thread its own workspace, fine grain uses atomics for shared access
 
 **Key Quote:**
@@ -48,7 +48,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 **Technical Details:**
 - Template-based factory system handles variations at compile time without JIT for data-type-independent operations
 - Extensive debug scaffolding code validates parallel task execution
-- Each variant combination produces different factory methods (e.g., saxb3_sim files)
+- Each variant combination produces different factory methods (e.g., saxpy3_sim files)
 
 ---
 
@@ -80,10 +80,10 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 ### Hyper Hash Implementation [00:26:06 - 00:35:20]
 [![00:26:06](https://img.youtube.com/vi/Pfy5hAsc85Q/default.jpg)](https://www.youtube.com/watch?v=Pfy5hAsc85Q&t=1566s)
 
-**Discussion:** Technical implementation details of the hyper hash structure as a GRB matrix object.
+**Discussion:** Technical implementation details of the hyper hash structure as a GrB_Matrix object.
 
 **Key Points:**
-- Hyper hash stored as a GRB matrix Y inside the matrix structure
+- Hyper hash stored as a GrB_Matrix Y inside the matrix structure
 - Y is always sparse (never hyper-sparse itself)
 - Hash collisions handled by searching short bucket lists
 - If bucket has >256 entries, falls back to binary search within bucket
@@ -123,7 +123,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 - Some add operations
 - Element-wise multiply (emult algorithm 8)
 - Submatrix operations
-- Saxby-3 method (for M and A matrices, not B)
+- Saxpy-3 method (for M and A matrices, not B)
 - Dot product methods
 - Extract operations
 
@@ -141,6 +141,11 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 
 **Discussion:** How hyper hash interacts with pack/unpack functionality and API design.
 
+**NOTE:** the pack/unpack methods were the primary methods for moving data in and out of
+a GrB_Matrix in O(1) time and space in GraphBLAS v9.  Since this video was taken, I have
+since added a more flexible set of methods: load/unload into/from a GxB_Container.
+For that method, the hyper-hash is loaded/unloaded as its own GrB_Matrix.
+
 **Key Points:**
 - Pack/unpack provides non-opaque access to matrix internals
 - Separate `unpack_hyper_hash` function added to preserve hyper hash across pack/unpack
@@ -155,6 +160,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 - Could have broken backward compatibility with extended unpack parameters
 - Instead chose two separate functions for cleaner API
 - Pack/unpack somewhat experimental, difficult to standardize in spec
+
 
 ---
 
@@ -178,7 +184,7 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 - Sparse → Bitmap: Requires moving data (needs templating for different types)
 
 **Key Quote:**
-> "Graph laws must always respect the structural computation of its result. You always have to say it's not there or it's there, and you get the right answer."
+> "GraphBLAS must always respect the structural computation of its result. You always have to say it's not there or it's there, and you get the right answer."
 [01:03:36]
 
 ### Hysteresis and Format Stability [01:04:41 - 01:05:09]
@@ -219,29 +225,29 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 **Workaround for Dense Output:**
 - Use accumulator: `Y += A*X` where Y starts dense
 - With accumulator, no deletions possible
-- Allows use of specialized dense kernels (saxb4, saxv5)
+- Allows use of specialized dense kernels (saxpy4, saxv5)
 - Faster execution, direct writes to output
 
 ---
 
 ## Matrix Multiply Variants
 
-### Saxby Methods Overview [01:12:00 - 01:13:05]
+### Saxpy Methods Overview [01:12:00 - 01:13:05]
 [![01:12:00](https://img.youtube.com/vi/Pfy5hAsc85Q/default.jpg)](https://www.youtube.com/watch?v=Pfy5hAsc85Q&t=4320s)
 
 **Discussion:** Different matrix multiply algorithms in GraphBLAS.
 
 **Key Points:**
-- Two major families: dot-product style and Saxby style
-- Saxby-3: Main sparse × sparse algorithm, uses Gustavson method
-- Saxby-4: C += A*B where C is bitmap/full
-- Saxby-5: C += A*B where A is bitmap/full, B is sparse
-- Saxby-1 and Saxby-2 deleted (old algorithms)
+- Two major families: dot-product style and Saxpy style
+- Saxpy-3: Main sparse × sparse algorithm, uses Gustavson method
+- Saxpy-4: `C += A*B` where C is bitmap/full
+- Saxpy-5: `C += A*B` where A is bitmap/full, B is sparse
+- Saxpy-1 and Saxpy-2 deleted (old algorithms)
 - Dot-1 deleted, Dot-2 and Dot-3 remain
 - XP Dot: Additional dot product methods
 
 **Complexity:**
-- Saxby-3 is "one of the more complex matrix multiply methods"
+- Saxpy-3 is "one of the more complex matrix multiply methods"
 - Handles all combinations of sparse/hyper-sparse inputs
 - Different parallel strategies mixed in single operation
 
@@ -257,13 +263,9 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 **Key Points:**
 - Matrix multiply too complex without understanding JIT first
 - JIT system shared between CPU (OpenMP) and CUDA
-- 63-bit enumeration space for Mxm variants (8 bits just for matrix formats)
+- 63-bit enumeration space for mxm variants (8 bits just for matrix formats)
 - Fast enumeration critical for hash table lookup of compiled kernels
 - Template system uses pound-define macros and pound-include
-
-**Key Quote:**
-> "Maybe the JIT is more important than the specifics of Mxm, because once you hit Mxm, you'll see all these macros like, 'Where do they come from?' Oh, they came from the JIT. Let's look at the JIT first."
-[01:20:31]
 
 **JIT Components:**
 - Enumify: Fast encoding of kernel variants
@@ -296,4 +298,3 @@ This session focused on SuiteSparse GraphBLAS data structures, specifically expl
 - Enumeration and code generation
 - CUDA JIT integration
 
-**Time:** Tuesday sessions confirmed as working well for continued discussions.
