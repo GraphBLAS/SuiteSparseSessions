@@ -87,6 +87,8 @@ When compilation fails (e.g., user-defined operator with typo), GraphBLAS automa
 
 **Panic vs Failures**: GRB_PANIC is too extreme - it means "shut off GraphBLAS entirely, something catastrophic happened." JIT failures need a less severe error code. [00:06:48]
 
+**UPDATE:** The `GxB_JIT_ERROR` error code has been added to GraphBLAS 10.0.0.
+
 ---
 
 ## Kernel Loading and Validation
@@ -101,7 +103,7 @@ When compilation fails (e.g., user-defined operator with typo), GraphBLAS automa
 **Cache Organization**: [00:24:05]
 - Files organized into 256 buckets (8-bit number) to avoid huge single directories
 - For test coverage: 22,000 JIT kernels generated
-- Path format: `~/.suitesparse/grb-9.3.0/<bucket>/<lib><kernel_name>.so`
+- Path format: `~/.SuiteSparse/GrB9.3.0/lib/<bucket>/<lib><kernel_name>.so`
 
 ### Kernel Query Function [00:26:03]
 [![00:26:03](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=1563s)
@@ -118,7 +120,7 @@ If query fails or kernel is stale, the file is removed and recompiled. [00:26:51
 ### Thread Safety [00:16:32]
 [![00:16:32](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=992s)
 - **Critical sections** protect against multiple threads within same process
-- **File locking** protects against multiple processes accessing same kernel
+- **File locking** protects against multiple processes accessing same kernel (see NOTE in Session 5)
 
 **Locking Strategy**: [00:16:50]
 - Only one thread per process can JIT at a time (critical section)
@@ -126,6 +128,8 @@ If query fails or kernel is stale, the file is removed and recompiled. [00:26:51
 - File locks prevent two processes from compiling same kernel simultaneously
 
 **Current Behavior**: If file lock fails, JIT is turned off rather than waiting. This is a "fix me" area that could be improved with configurable wait/no-wait options similar to PostgreSQL. [00:17:00]
+
+**UPDATE:** File locking has been removed; see Session 5.
 
 ---
 
@@ -180,7 +184,7 @@ Each matrix has accessor macros that adapt to its sparsity format:
 - Full: `I = p % nrows` (modulo computation)
 
 **Bitmap Optimization**: [02:06:02]
-Single line `if (!GB_B_IS_PRESENT(p)) continue;` handles bitmap case. For non-bitmap matrices, this macro evaluates to `if (!1) continue;` which compiler optimizes away entirely.
+Single line `if (!GBb_B(p)) continue;` handles bitmap case. For non-bitmap matrices, this macro evaluates to `if (!1) continue;` which compiler optimizes away entirely.
 
 ---
 
@@ -200,7 +204,7 @@ ANSI C leaves casting from out-of-range float to integer as undefined behavior. 
 - Negative value to unsigned → 0
 - Overflow → INT_MAX or equivalent
 
-**Quote**: "Matlab doesn't do that. They define it. So if you cast a floating point infinity to int32, you get int32 max. That's a pretty decent answer. If you do that in ANSI C, you get 42 or something ridiculous." [01:50:13]
+**Quote**: "MATLAB doesn't do that. They define it. So if you cast a floating point infinity to int32, you get int32 max. That's a pretty decent answer. If you do that in ANSI C, you get 42 or something ridiculous." [01:50:13]
 
 ### Cast Function Generation [01:52:00]
 [![01:52:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=6720s)
@@ -269,7 +273,7 @@ This allows user-defined operators to include necessary headers without GraphBLA
 - Not defined: Pre-compiled kernel baked into `libgraphblas.so`
 
 **Pre-JIT kernels**: [01:59:30]
-- Copied into `source/prejit` folder
+- Copied into `GraphBLAS/PreJIT` folder
 - Compiled by CMake during GraphBLAS build
 - Each has unique function name (not just `GB_jit_kernel`)
 - Stored in tables: kernel names, query pointers, kernel pointers
@@ -302,7 +306,7 @@ The function signature is defined in separate wrapper file that `#include`s the 
 ```c
 for (int64_t p = 0; p < bnz; p++)
 {
-    if (!GB_B_IS_PRESENT(p)) continue;  // Bitmap handling
+    if (!GBb_B(p)) continue;             // Bitmap handling
     GB_DECLARE_B(bij);                   // Type declaration
     GB_GET_B(bij, Bx, p);                // Load value (with typecast)
     GB_EWISEOP(Cx, p, bij, i, j);        // Apply operator
@@ -310,7 +314,7 @@ for (int64_t p = 0; p < bnz; p++)
 ```
 
 **All complexity hidden in macros**:
-- `GB_B_IS_PRESENT(p)` - Returns true for non-bitmap, checks bitmap for bitmap format
+- `GBb_B(p)` - Returns true for non-bitmap, checks bitmap for bitmap format
 - `GB_DECLARE_B(bij)` - Declares variable of correct type (possibly after typecast)
 - `GB_GET_B(bij, Bx, p)` - Loads value with typecasting if needed
 - `GB_EWISEOP` - Applies the binary operator (expands to user function or built-in op)
@@ -327,7 +331,7 @@ All source code bundled inside `libgraphblas.so` as compressed binary using zsta
 
 **Cache Contents** (~27,000 lines):
 - 244 files total
-- `graphblas.h` header
+- `GraphBLAS.h` header
 - All include files
 - All templates (CPU and CUDA mixed together)
 - Template directory: ~14,000 lines of algorithms and kernels
@@ -340,14 +344,14 @@ All source code bundled inside `libgraphblas.so` as compressed binary using zsta
 ### File Organization
 
 **CPU Side** (well organized):
-- `source/jitifyer/` - Main JIT infrastructure
-- `source/jitifyer/GB_jit_kernel_*.c` - 44 kernel wrappers
-- `source/Template/` - 44 kernel templates
+- `Source/jitifyer/` - Main JIT infrastructure
+- `Source/jit_kernels/template/GB_jit_kernel_*.c` - 44 kernel wrappers (now 88 as of GraphBLAS 10.3)
 
 **CUDA Side** (needs reorganization): [02:28:00]
-- 8 JIT wrappers in cuda folder
+- 8 JIT wrappers in CUDA folder
 - 8 kernel templates mixed in template folder
 - Needs reorganization to match CPU structure
+- UPDATE: as of GraphBLAS 10.3, the CUDA folder has been reorganized
 
 ---
 
@@ -404,14 +408,14 @@ GrB_set(op, "I don't use row index")
 
 ### Hash Function [02:24:00]
 [![02:24:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=8640s)
-Uses XX hash on the encoding struct to generate 64-bit hash.
+Uses xxHash on the encoding struct to generate 64-bit hash.
 
 **Special hash values**:
 - `0` - Built-in operator, no need to hash
 - `UINT64_MAX` - Not jittable (e.g., missing user-defined strings)
 
 **Hash collision handling**: [02:25:26]
-If XX hash returns 0 or UINT64_MAX by chance (very rare), return magic number instead to preserve special meanings.
+If xxHash returns 0 or UINT64_MAX by chance (very rare), return magic number instead to preserve special meanings.
 
 **Magic number**: Arbitrary 64-bit value used to detect if matrix has been initialized/freed. [02:26:10]
 
@@ -485,16 +489,12 @@ Multiple layers of macros calling macros:
 - Each layer handles different concerns (operation, typecasting, flipping)
 - Allows one template to handle all variations
 
-**Quote**: "Layers upon layers, macros upon macros. What is the bin op? Oh, the bin op is just add. This bin op is one step removed. This ewise op is like 2 steps removed from the actual operator." [01:43:28]
-
 ### Windows Challenges [02:19:00]
 [![02:19:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=8340s)
 - Can't use standard shell commands
 - Forward slash vs backslash issues
 - CMake required (slower but more portable)
 - MinGW build system has special quirks
-
-**Quote about Windows**: "Of course, because why not put an underscore before a function is called by the user? Really." [00:19:46] (referring to `_lockfile` vs `lockfile`)
 
 ---
 
