@@ -9,17 +9,17 @@
   - [The Jitifier Load Process](#the-jitifier-load-process-001417)
   - [Global State and Concurrency](#global-state-and-concurrency-001216)
   - [File Locking for Multi-Process Safety](#file-locking-for-multi-process-safety-004030)
-- [Kernel Creation and Macrification](#kernel-creation-and-macrification)
+- [Kernel Creation and Macrofication](#kernel-creation-and-macrofication)
   - [Kernel Families and Encoding](#kernel-families-and-encoding-003438)
-  - [The Macrification Process](#the-macrification-process-003640)
+  - [The Macrofication Process](#the-macrofication-process-003640)
   - [File Naming Convention](#file-naming-convention-003719)
-  - [Type Definitions and Macrification](#type-definitions-and-macrification-005100)
+  - [Type Definitions and Macrofication](#type-definitions-and-macrofication-005100)
 - [Binary Operators and Monoids](#binary-operators-and-monoids)
   - [Operator Encoding](#operator-encoding-010800)
   - [Operator String Generation](#operator-string-generation-011430)
   - [Operator Flipping for Non-Commutative Operations](#operator-flipping-for-non-commutative-operations-011020)
   - [Integer Division Edge Cases](#integer-division-edge-cases-012100)
-  - [Monoid Macrification](#monoid-macrification-010100)
+  - [Monoid Macrofication](#monoid-macrofication-010100)
   - [Shared Definitions and Defaults](#shared-definitions-and-defaults-013600)
 - [Matrix Format Accessors](#matrix-format-accessors)
   - [Format-Specific Macros](#format-specific-macros-014150)
@@ -35,7 +35,7 @@
 
 ## Overview
 
-This session provides a deep dive into the JIT (Just-In-Time) compilation system in SuiteSparse GraphBLAS, focusing on how kernels are created, hashed, compiled, verified, and loaded. Dr. Davis walks through the complete macrification process, showing how template code is specialized for specific operators and types.
+This session provides a deep dive into the JIT (Just-In-Time) compilation system in SuiteSparse GraphBLAS, focusing on how kernels are created, hashed, compiled, verified, and loaded. Dr. Davis walks through the complete macrofication process, showing how template code is specialized for specific operators and types.
 
 ---
 
@@ -53,7 +53,7 @@ The session starts with an overview of the core JIT system components: kernel cr
 - Example: If you define `add_gauss` operator and later change its definition without changing the name, the JIT detects this mismatch
 
 **Key Quote:**
-> "What if you create an operator called add Gauss, and you did this a week ago, and you change your code and you change the definition but you don't change the name? I think oh, I've got add Gauss here. Here it is, and it's the wrong string. Well, that's not good. I check for that." [00:00:23]
+> "What if you create an operator called `add_gauss`, and you did this a week ago, and you change your code and you change the definition but you don't change the name? I think oh, I've got `add_gauss` here. Here it is, and it's the wrong string. Well, that's not good. I check for that." [00:00:23]
 
 ---
 
@@ -71,7 +71,7 @@ GraphBLAS provides five different JIT control settings that give users fine-grai
 5. **Off** - Completely disable JIT and deallocate everything
 
 **Key Quote:**
-> "If you have a set of operations which are not performance critical but they're doing some crazy type casting, they may compile a bunch of jets you don't need. Just turn, pause the jet, or just say, Jit run. Don't load anything. Don't try to compile the thing. Just go with what you got." [00:20:40]
+> "If you have a set of operations which are not performance critical but they're doing some crazy type casting, they may compile a bunch of JIT kernels you don't need. Just turn, pause the JIT, or just say, JIT run. Don't load anything. Don't try to compile the thing. Just go with what you got." [00:20:40]
 
 ---
 
@@ -111,7 +111,8 @@ The JIT system uses carefully managed global state to track compiled kernels, ca
 
 **Concurrency Handling:**
 - Critical sections protect hash table modifications between user threads
-- File locking prevents conflicts between different applications compiling the same kernel
+- File locking prevents conflicts between different applications compiling the same kernel (feature removed
+in GraphBLAS v10.1.1; see NOTE below)
 - Run mode allows lock-free kernel lookups for maximum performance
 
 **Key Quote:**
@@ -133,11 +134,16 @@ To handle the case where two different applications might try to compile the sam
 - If locking fails, the JIT is disabled (perhaps too pessimistic, as Tim notes)
 
 **Key Quote:**
-> "I'm paranoid. What if you have 2 different applications that are both calling graph laws, and they both want to compile the same jit kernel at the same time. That's just going to be a mess. I have a file locking mechanism." [00:40:08]
+> "I'm paranoid. What if you have 2 different applications that are both calling GraphBLAS, and they both want to compile the same jit kernel at the same time. That's just going to be a mess. I have a file locking mechanism." [00:40:08]
+
+**NOTE:** File locking is removed in GraphBLAS 10.1.1.  Not all file systems support it.
+If two applications want to use GraphBLAS at the same time, each can be given their
+own JIT cache.  With internal critical sections, the cache is protected if a single
+application wants to compile multiple JIT kernels in parallel.
 
 ---
 
-## Kernel Creation and Macrification
+## Kernel Creation and Macrofication
 
 ### Kernel Families and Encoding [00:34:38]
 [![00:34:38](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=2078s)
@@ -162,23 +168,23 @@ Kernels are organized into families (reduce, mxm, apply, etc.), each with specif
 
 ---
 
-### The Macrification Process [00:36:40]
+### The Macrofication Process [00:36:40]
 [![00:36:40](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=2200s)
 
 **Discussion:**
-Macrification is the process of transforming template code into specialized C code by generating preprocessor macros that define types, operators, and operations.
+Macrofication is the process of transforming template code into specialized C code by generating preprocessor macros that define types, operators, and operations.
 
-**Macrify Methods:**
-- `macrify_name` - generates the kernel file name
-- `macrify_family` - dispatches to family-specific macrification
-- `macrify_reduce` - specializes reduction kernels
-- `macrify_typedefs` - generates user-defined type definitions
-- `macrify_monoid` - generates monoid operator macros
-- `macrify_binop` - generates binary operator definitions
-- `macrify_input` - generates matrix accessor macros
+**Macrofy Methods:**
+- `macrofy_name` - generates the kernel file name
+- `macrofy_family` - dispatches to family-specific macrofication
+- `macrofy_reduce` - specializes reduction kernels
+- `macrofy_typedefs` - generates user-defined type definitions
+- `macrofy_monoid` - generates monoid operator macros
+- `macrofy_binop` - generates binary operator definitions
+- `macrofy_input` - generates matrix accessor macros
 
 **Key Quote:**
-> "The macrifying is the process of all these macrify methods here. It's the process of creating the strings that go along or define a particular jit kernel, or the name of the file, or the name of the kernel, which is the same thing." [00:37:00]
+> "The macrofying is the process of all these macrofy methods here. It's the process of creating the strings that go along or define a particular jit kernel, or the name of the file, or the name of the kernel, which is the same thing." [00:37:00]
 
 ---
 
@@ -209,7 +215,7 @@ GB_jit__reduce__03f31e1
 
 ---
 
-### Type Definitions and Macrification [00:51:00]
+### Type Definitions and Macrofication [00:51:00]
 [![00:51:00](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=3060s)
 
 **Discussion:**
@@ -278,7 +284,7 @@ z = (x < y) ? x : y;
 ```
 
 **Key Quote:**
-> "I decided this is faster on Cuda because cuda doesn't like branches. Cuda doesn't like ifs, it doesn't mind ternaries as much as ifs. You'd think the compilers wouldn't care between those 2 right? But this is just a matter of tweaking the code and optimizing." [01:18:30]
+> "I decided this is faster on CUDA because CUDA doesn't like branches. CUDA doesn't like ifs, it doesn't mind ternaries as much as ifs. You'd think the compilers wouldn't care between those 2 right? But this is just a matter of tweaking the code and optimizing." [01:18:30]
 
 **Timestamp:** [01:15:00]
 
@@ -320,13 +326,13 @@ Integer division requires special handling because C's undefined behavior for di
 - Follows MATLAB's approach to integer division
 
 **Key Quote:**
-> "If you happen to divide by 0 integer division by 0, what do you get? Well, you don't get a Nan. You don't get infinity like in 32 Max and 64. Your program dies. You get an abort. Oh, my gosh, you gotta be kidding! That's the undefined behavior that gcc says it's undefined. So let's abort. I don't do that. I do the Matlab thing." [01:22:00]
+> "If you happen to divide by 0 integer division by 0, what do you get? Well, you don't get a Nan. You don't get infinity like in 32 Max and 64. Your program dies. You get an abort. Oh, my gosh, you gotta be kidding! That's the undefined behavior that gcc says it's undefined. So let's abort? I don't do that. I do the MATLAB thing." [01:22:00]
 
 **Timestamp:** [01:21:30]
 
 ---
 
-### Monoid Macrification [01:01:00]
+### Monoid Macrofication [01:01:00]
 [![01:01:00](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=3660s)
 
 **Discussion:**
@@ -352,16 +358,13 @@ Monoids require extensive macro definitions for identity values, terminal values
 [![01:36:00](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y&t=5760s)
 
 **Discussion:**
-A shared header file provides default definitions for any macros not defined during macrification.
+A shared header file provides default definitions for any macros not defined during macrofication.
 
 **Default Handling:**
 - If atomic support isn't explicitly defined, it defaults to false
 - If no identity byte exists, memset optimization is disabled
 - Terminal values default to "no terminal"
-- This allows family-specific macrification to omit irrelevant features
-
-**Key Quote:**
-> "What happens if I use them? Well, either they're not defined, or later on, they'll be the empty string if I don't define them here. At the very end, just before I go in and grab my actual templatized kernel code, I have this all the monoids shared definitions, and this is a bunch of if not defined, define it as the default." [01:36:00]
+- This allows family-specific macrofication to omit irrelevant features
 
 **Timestamp:** [01:37:00]
 
@@ -386,9 +389,6 @@ Each matrix gets its own set of accessor macros that abstract away the storage f
 - `GB_A_TYPE` - actual storage type of matrix A
 - `GB_A2_TYPE` - type after casting for operator input
 - Handles both flipped and non-flipped operator cases
-
-**Key Quote:**
-> "Every matrix here the a matrix has its own P macro. It's bitmap. So how do you get where's the start of the column? Oh, it's just a multiply. These are all format, your data format, matrix format accessors." [01:42:05]
 
 ---
 
@@ -437,12 +437,6 @@ Panel-based reduction is significantly faster than scalar reduction due to bette
 - Allows better CPU pipelining
 - Final reduction across panel is amortized
 
-**Key Quote:**
-> "It's faster to load in a bunch of entries and reduce all of them to a temporary array of 32 words. The reason that's better is just the compiler, the hardware likes that better. There's no dependency between operations. They're all independent. So the pipeline works better, and it's way faster." [01:44:35]
-
-**Platform Dependency:**
-> "These are really wonky numbers. I've just tried different cases. This is probably specific to an intel processor because that's where I've optimized it for." [01:45:50]
-
 **Timestamp:** [01:45:00]
 
 ---
@@ -471,9 +465,6 @@ The same template code can generate either runtime JIT kernels or compile-time p
 - JIT kernels always named `GB_jit_kernel` in their .so files
 - Pre-JIT kernels have unique names matching their specialization
 - Both use the same template code with different macro definitions
-
-**Key Quote:**
-> "When I'm compiling at runtime, but graph blast build time for the library, this is not defined. And so I'm going to rename this kernel with its name, which is GB jit reduce 0cf 1f 0 8 2. Its name will match its file name, which makes sense." [01:52:00]
 
 **Timestamp:** [01:51:27]
 

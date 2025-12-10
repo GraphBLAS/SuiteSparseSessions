@@ -464,7 +464,7 @@ Major upcoming feature:
 
 **Impact on JIT:**
 - New operator enumeration codes
-- Updated macrification process
+- Updated macrofication process
 - Additional parameters passed to kernels
 - "Very unstable development branch for a while" during implementation
 
@@ -527,7 +527,7 @@ Thread safety in JIT compilation:
 
 The next session will cover:
 1. Deep dive into the jitifier.c core implementation
-2. Macrification process details
+2. Macrofication process details
 3. Template system mechanics
 4. Transition to matrix-matrix multiply (MXM) as foundation
 

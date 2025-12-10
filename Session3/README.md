@@ -270,7 +270,7 @@ For that method, the hyper-hash is loaded/unloaded as its own GrB_Matrix.
 **JIT Components:**
 - Enumify: Fast encoding of kernel variants
 - Codify: Generate source code
-- Macrify: Build macro definitions
+- Macrofy: Build macro definitions
 - Almost identical between CUDA and CPU JIT
 - Functions all have "fy" suffix in jitifer folder
 

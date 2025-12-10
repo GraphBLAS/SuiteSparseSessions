@@ -24,7 +24,7 @@ More sessions are planned in the future.
 | Video | Session | Date | Topics | Link |
 |-------|---------|------|--------|------|
 | [![Session 4](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA) | **Session 4** | June 17, 2024 | JIT architecture (encodify/jitify/execute), kernel caching, Pre-JIT, CUDA integration | [Summary](Session4/README.md) |
-| [![Session 5](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y) | **Session 5** | June 25, 2024 | JIT control modes, kernel loading, macrification process, binary operators & monoids | [Summary](Session5/README.md) |
+| [![Session 5](https://img.youtube.com/vi/vUKnfYX-o1Y/default.jpg)](https://www.youtube.com/watch?v=vUKnfYX-o1Y) | **Session 5** | June 25, 2024 | JIT control modes, kernel loading, macrofication process, binary operators & monoids | [Summary](Session5/README.md) |
 | [![Session 6](https://img.youtube.com/vi/Mb0AspQ2IhE/default.jpg)](https://www.youtube.com/watch?v=Mb0AspQ2IhE) | **Session 6** | August 1, 2024 | JIT synchronization, multi-threading/multi-process, macrofy system, error handling | [Summary](Session6/README.md) |
 | [![Session 7](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ) | **Session 7** | August 7, 2024 | Kernel validation, macro system deep dive, type casting, compilation methods | [Summary](Session7/README.md) |
 
@@ -59,7 +59,7 @@ More sessions are planned in the future.
 ### Kernel Architecture
 - **Five kernel types**: Factory, JIT, Pre-JIT, Generic, CUDA
 - **Three-tier execution**: Factory → JIT → Generic fallback
-- **Macrification**: Template specialization through macro expansion
+- **Macrofication**: Template specialization through macro expansion
 - **Switch factory pattern**: C-based runtime templating
 
 ### JIT System

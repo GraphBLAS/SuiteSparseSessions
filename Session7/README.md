@@ -11,7 +11,7 @@
 - [Critical Sections and Locking](#critical-sections-and-locking)
   - [Thread Safety](#thread-safety-001632)
 - [Macro System and Code Generation](#macro-system-and-code-generation)
-  - [Macrify Family Functions](#macrify-family-functions-003000)
+  - [Macrofy Family Functions](#macrofy-family-functions-003000)
   - [Type System](#type-system-004758)
   - [Operator Macrofication](#operator-macrofication-005900)
 - [Sparsity Format Handling](#sparsity-format-handling)
@@ -131,7 +131,7 @@ If query fails or kernel is stale, the file is removed and recompiled. [00:26:51
 
 ## Macro System and Code Generation
 
-### Macrify Family Functions [00:30:00]
+### Macrofy Family Functions [00:30:00]
 [![00:30:00](https://img.youtube.com/vi/libeAi866NQ/default.jpg)](https://www.youtube.com/watch?v=libeAi866NQ&t=1800s)
 The code generation uses extensive macro preprocessing to generate specialized kernels. Main families:
 - Apply
