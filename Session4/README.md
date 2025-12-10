@@ -77,7 +77,7 @@ Discussion of how GraphBLAS handles dynamic operations:
 - Most assign methods use pending tuples internally
 - Set element operations fast due to deferred work
 
-**Quote:** "GRB set element was a method. You just want to go blink, stick it in. Well, there's no way that's gonna be fast if it's totally static CSR." [00:06:46]
+**Quote:** "GrB_setElement is a method in the C API. You just want to go blink, stick it in. Well, there's no way that's gonna be fast if it's totally static CSR." [00:06:46]
 
 **Timestamp:** [00:04:20] - [00:08:10]
 
@@ -95,8 +95,6 @@ The JIT system is approximately 11,000 lines of code and represents a major comp
 2. Jitify - Load or compile kernel
 3. Execute - Call compiled kernel
 
-> "It's a 3 step process, and every function that ends with underscore jit is going to look just like this."
-
 **Timestamp:** [00:08:20] - [00:10:30]
 
 ### Starting Point: Matrix Reduce to Scalar [00:09:30]
@@ -104,10 +102,10 @@ The JIT system is approximately 11,000 lines of code and represents a major comp
 
 The simplest interesting GraphBLAS function used to explain JIT:
 
-> "The way to start with the jit is to start with the simplest interesting graph plus function, which is GRB matrix reduced to scalar."
+> "The way to start with the jit is to start with the simplest interesting GraphBLAS function, which is reducing a GrB_Matrix to scalar."
 
 **Workflow:**
-1. User calls GRB_reduce
+1. User calls GrB_reduce
 2. Method checks for CUDA kernels
 3. Checks for ISO full matrix optimization (log n operations)
 4. Attempts factory kernel
@@ -148,15 +146,11 @@ Every JIT call must quickly encode the operation:
 
 How binary operators are encoded:
 
-> "I go and you know, user cases are always code 0. I just have to encode all possible sets of operations."
-
 **Process:**
 - Min, max, plus map to specific codes
 - Boolean operators unified (Min Boolean = logical AND = times Boolean)
 - FP32 vs FP64 handled differently (fmin vs fminf)
 - 255 possible operator codes, 32 valid for monoids
-
-**Quote:** "If 2 monoids map to the same string, it doesn't I can just you reuse that same kernel." [00:44:24]
 
 **Timestamp:** [00:40:25] - [00:50:00]
 
@@ -165,11 +159,9 @@ How binary operators are encoded:
 
 Hash computation for kernel lookup:
 
-> "I don't need to go and read the string every time and hash the string the hash encoding then just has to hash a hundred 20 bit number down to a 64 bit hash."
-
 **Special hash values:**
 - 0 = built-in operator (no hashing needed)
-- UINT64_MAX = cannot JIT this operation
+- `UINT64_MAX` = cannot JIT this operation
 - Combines encoding hash with monoid/operator hash via XOR
 
 **Timestamp:** [00:50:00] - [00:59:00]
@@ -195,7 +187,7 @@ Enumeration of all JIT kernel families:
 - 42+: Extract, mask, Kronecker (not yet JITted)
 - 1000+: CUDA kernels
 
-**Quote:** "I've got 44 jit kernels. I need about 43 more just to cover these cases. Then, of course, there's all the cuda kernels." [02:03:19]
+**Quote:** "I've got 44 jit kernels. I need about 43 more just to cover these cases. Then, of course, there's all the CUDA kernels." [02:03:19]
 
 **Timestamp:** [00:52:00] - [00:55:00]
 
@@ -226,17 +218,19 @@ Global hash table for all compiled kernels:
 ### Cache Directory Structure [01:09:00]
 [![01:09:00](https://img.youtube.com/vi/4ZHeaThKReA/default.jpg)](https://www.youtube.com/watch?v=4ZHeaThKReA&t=4140s)
 
-Organization of JIT cache at ~/.suite_sparse/GRB_9_3/:
+Organization of JIT cache at ~/.Suitesparse/GrB.9.3.0/:
 
 ```
-.suite_sparse/GRB_9_3/
+.SuiteSparse/GBB.9.3.0/
 ├── c/           # Compiled libraries (255 subdirectories by hash)
 ├── lock/        # File locking for concurrent access
 ├── src/         # Generated C source files
 └── tmp/         # Temporary files
 ```
 
-**Versioning:** "If I change graph plus at all, like point 1 3.9 point 3 1 I abandoned all previously compiled jits automatically." [01:10:56]
+NOTE: since GraphBLAS v10.1.1, the lock folder has been removed.
+
+**Versioning:** "If I change GraphBLAS at all, I abandon all previously compiled jits automatically." [01:10:56]
 
 **Timestamp:** [01:09:00] - [01:12:00]
 
@@ -297,7 +291,7 @@ Validation mechanism for loaded kernels:
 - Terminal value matches
 - Type size hasn't changed
 
-**Quote:** "That's expensive. I don't do that in every call to this kernel. I do it only when I load it into memory." [01:32:00]
+**Quote:** "Verifyin that the user-defined types are operators are unchanged is expensive. I don't do that in every call to this kernel. I do it only when I load it into memory." [01:32:00]
 
 **Timestamp:** [01:30:00] - [01:35:00]
 
@@ -310,11 +304,11 @@ Validation mechanism for loaded kernels:
 
 Support for platforms without runtime compilation:
 
-> "You can still have on any system you can have what I call prejit kernels. You run graph laws, you run some applications. It generates all these jit kernels, and you look at your cache file, your dot suites bars GRB, you copy all those C files I generate back into graph laws in a special folder called Prejit."
+> "You can still have on any system you can have what I call prejit kernels. You run GraphBLAS, you run some applications. It generates all these jit kernels, and you look at your cache file, your ~/.SuiteSparse/, you copy all those C files I generate back into GraphBLAS in a special folder called PreJIT."
 
 **Process:**
 1. Run application, collect JIT kernels
-2. Copy generated C files to GraphBLAS source/prejit/
+2. Copy generated C files to GraphBLAS/PreJIT
 3. Rebuild GraphBLAS
 4. Kernels compiled into library with unique names
 5. Hash table populated at initialization
@@ -324,7 +318,9 @@ Support for platforms without runtime compilation:
 - Pre-JIT: Unique names like `GB_jit__reduce__83f3ee2__add_gauss`
 - Pre-JIT uses demacrofy to parse kernel names back to encodings
 
-**Quote:** "The prejit and the jit look very similar all the way through the code, just the prejit are already compiled and built into lib graph laws, and the jit ones are not." [01:40:20]
+**Quote:** "The prejit and the jit look very similar all the way through the
+code, just the prejit are already compiled and built into the compiled
+GraphBLAS library, and the jit ones are not." [01:40:20]
 
 **Timestamp:** [01:35:00] - [01:42:00]
 
@@ -348,9 +344,9 @@ Solution to the source code distribution problem:
 - All template source files
 - Include headers
 - CUDA kernels
-- Compressed using zstandard
+- Compressed using zstd
 
-**Quote:** "If you're a Linux just for a manager, you don't wanna bundle so you can bundle source code. But I didn't wanna require they do that. Well, I bundle all my source code anyway." [01:50:58]
+**Quote:** "If you're a Linux distro manager, you don't wanna bundle my source code. I didn't want to require they do that. Well, I bundle all my source code anyway, inside my compiled library." [01:50:58]
 
 **Timestamp:** [01:47:00] - [01:51:00]
 
@@ -363,7 +359,7 @@ CMake build process:
 2. Compresses each with zstandard
 3. Emits as C arrays of bytes
 4. Links into `GB_jit_package.c`
-5. On `GRB_init()`, decompresses to cache if needed
+5. On `GrB_init()`, decompresses to cache if needed
 
 **Example structure:**
 ```c
@@ -372,7 +368,7 @@ static uint8_t GB_jit_kernel_reduce[] = {
 };
 ```
 
-**Quote:** "When GRB init is called, I go look at your cash folder and I say, do you need source? Oh, your source code is already there. You're good or not. Oh, I need to put source code here." [01:48:54]
+**Quote:** "When GrB_init is called, I go look at your cache folder and if it's not there, I extract it from my binary library and put it there." [01:48:54]
 
 **Timestamp:** [01:48:00] - [01:51:00]
 
@@ -385,7 +381,7 @@ static uint8_t GB_jit_kernel_reduce[] = {
 
 Parallel structure for GPU kernels:
 
-> "The cuda case is actually interesting to look at, and again, this is still a high level view."
+> "The CUDA case is actually interesting to look at, and again, this is still a high level view."
 
 **Differences from CPU JIT:**
 - Kernel codes 1000+ (vs 1-100 for CPU)
@@ -398,8 +394,6 @@ Parallel structure for GPU kernels:
 - Same hash table
 - Same cache directory structure
 - Template differs, everything else identical
-
-**Quote:** "They differ in their templates, right? They have different templates. If I go to my templates, they're up here." [01:46:34]
 
 **Timestamp:** [01:42:00] - [01:47:00]
 
@@ -414,9 +408,7 @@ Runtime decision-making for heterogeneous systems:
 - Unified shared memory availability
 - Last location data was touched
 - Problem size threshold
-- User hints via GRB_get/GRB_set
-
-**Quote:** "Last time I touched it was on the GPU, so let me do it on the GPU. Last time I touched on the CPU, but oh, this is a big problem, big by some threshold, and therefore let's just do it on the GPU. It'll be faster." [01:57:37]
+- User hints via GrB_get/GrB_set
 
 **Timestamp:** [01:56:00] - [01:59:00]
 
@@ -439,7 +431,7 @@ JIT kernels need to call back into GraphBLAS:
 - No library dependencies in compiled kernels
 - Guaranteed correct version
 
-**Quote:** "If you just do like C make with dash L graph laws, and like, there's my library, I'm linking it might get a different graph plus library. Different version. That would be a nightmare." [01:52:12]
+**Quote:** "If you just do like C make with -lgraphblas, and like, where's my library, I might be linking it and a different GraphBLAS library. Different version. That would be a nightmare." [01:52:12]
 
 **Timestamp:** [01:52:00] - [01:54:00]
 
@@ -528,22 +520,6 @@ Thread safety in JIT compilation:
 - Potential performance issue for user-level parallelism
 
 **Timestamp:** [01:06:00] - [01:07:30]
-
----
-
-## Key Quotes
-
-**On JIT necessity:**
-> "I've got 44 jit kernels. I need about 80 of them more right? I've got way more I need to write." [02:00:06]
-
-**On complexity:**
-> "The jit is a big beast. You've seen this whole arc of oh, I wanna call the CUDA. I have called the jit wrapper, and it calls the encodifier." [01:55:18]
-
-**On unified memory:**
-> "You have a non-uniform memory space. Just give me a uniform pointer and if you need to make it move fine, it's just that pointer. This is the data I want, and just do it, and it just works." [02:04:59]
-
-**On reliability:**
-> "It was a failure point. I was just it was just a nightmare getting it to work and reliably link against the right thing. And it wasn't. So I've created this just this callback mechanism." [01:53:54]
 
 ---
 
