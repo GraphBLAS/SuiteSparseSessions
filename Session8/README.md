@@ -56,7 +56,7 @@ This session provides a detailed walkthrough of algorithm implementation in Suit
 [![00:00:18](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=18s)
 
 ### Source Directory Layout
-"So this is so we're in GraphBLAS. And I just released GraphBLAS 9.3.1. Now all the source files have been restructured so it's easier to follow."
+"I just released GraphBLAS 9.3.1. Now all the source files have been restructured so it's easier to follow."
 
 - **Factory folders**: Template files used only to construct factory kernels, not needed for JIT
 - **Include folders**: Various definitions for algorithm sets
@@ -71,7 +71,7 @@ Key principle: Algorithms that only work on structure (not data-dependent) are n
 [![00:19:30](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=1170s)
 
 ### Assertion System
-"If I want to turn on the assertions, I can go to Gb_debug.h and recompile the code, then all these assertions become active."
+"If I want to turn on the assertions, I can go to GB_debug.h and recompile the code, then all these assertions become active."
 
 - **GB_assert macros**: Development-time checks that validate matrix integrity
 - **GB_Matrix_check**: Exhaustive validation that walks across entire matrix (very slow but comprehensive)
@@ -128,7 +128,7 @@ Optimizations:
 [![00:08:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=480s)
 
 ### Standard Workflow for All Methods
-"Every Grb method has this workflow: I log where I am, I start the burble, I check my input matrices, I grab the descriptor, I grab the mask, and I call the workhorse internal method."
+"Every GrB method has this workflow: I log where I am, I start the burble, I check my input matrices, I grab the descriptor, I grab the mask, and I call the workhorse internal method."
 
 Typical sequence:
 1. `GB_WHERE` - Establishes error logging location
@@ -138,7 +138,7 @@ Typical sequence:
 5. Call internal workhorse method (e.g., `GB_apply`)
 
 ### Descriptor Handling
-"I no longer use the descriptor. I've thrown it away. I don't pass it to my internal methods. I just pass in the pieces like is A transpose or not, is the mask complement, and so forth."
+"Once I extract its contents, I no longer use the descriptor. I don't pass it to my internal methods. I just pass in the pieces like is A transpose or not, is the mask complement, and so forth."
 
 ---
 
@@ -178,7 +178,7 @@ Key validation points:
    - Used when matrix storage format differs from internal representation
    - Applies to user-defined positional operators
 2. **Flip_xy**: Reversal of operator arguments (X and Y)
-   - Used when rewriting operations (e.g., A*B → B^T * A^T)
+   - Used when rewriting operations (e.g., `A*B → B^T * A^T`)
    - Non-commutative operators need explicit reversal (divide → reverse_divide, less_than → greater_than)
 
 **Third meaning - Zombie flip** [00:56:30]:
@@ -187,6 +187,10 @@ GB_flip(i) = -(i+2)  // Maps 0→-2, 1→-3, 3→-5, etc.
 ```
 - Self-inverse function for marking entries as dead (zombies)
 - Should be renamed to "zombify" to avoid confusion
+
+**UPDATE:** I have renamed `GB_FLIP` to `GB_ZOMBIE` and changed its definition.
+It now computes `GB_ZOMBIE(i)=(~(i))`, the one's complement of i.  Like the
+original `GB_FLIP`, the function is its own inverse.
 
 ---
 
@@ -264,7 +268,7 @@ ISO value complications:
 ### Task Slicing Strategy
 "I want to create 32 tasks per thread. If I have 10 threads, I'll create 320 tasks. I cut the matrix up into 320 pieces."
 
-**GB_slice_matrix design** [01:23:00]:
+**GB_SLICE_MATRIX design** [01:23:00]:
 ```
 Each task described by 3 integers:
 - k_first: First vector to work on
@@ -325,6 +329,7 @@ Example factory kernel: `GB_uop_apply__sqrt_fp32_fp32.c`
 - Compiles kernel at runtime for specific case
 - Requires operator definition string
 - Returns `GrB_NO_VALUE` if can't compile
+- Fast as Factory kernels once the JIT is compiled
 
 **Tier 3: Generic execution** (slowest) [01:54:00]
 "I have a function pointer. I typecast a billion times on each scalar and apply the operator a billion times. It's crazy slow."
@@ -338,7 +343,6 @@ Example factory kernel: `GB_uop_apply__sqrt_fp32_fp32.c`
 [![01:55:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=6900s)
 
 ### Binary Operator with Scalar
-"You're calling GrB_apply with operator SECOND, you pass in a scalar and a matrix. Oh, that's just identity."
 
 **Bind_first**: `C = op(scalar, A[i,j])`
 - Scalar is first argument to binary operator
@@ -358,15 +362,15 @@ Both have separate factory kernels and JIT paths.
 [![01:59:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=7140s)
 
 ### User-Defined Index Unary Operators
-"This is calling a function pointer that has to be given the row and column indices, and I don't know if you're going to use them. Maybe you just want the thunk. I'll give them to you anyway, sorry."
+"This is calling a function pointer that has to be given the row and column indices, and I don't know if you're going to use them. Maybe you just want the theta. I'll give them to you anyway, sorry."
 
 **Challenges**:
-- Must provide i, j, value, and thunk to all user-defined index unary operators
+- Must provide i, j, value, and theta to all user-defined index unary operators
 - Getting column index j is expensive (requires slicing and iteration)
 - No way for user to indicate which parameters are actually needed
 
 **Future optimization opportunity** [02:01:00]:
-"If you could somehow tell me this operator only depends on the row index and thunk, I could use faster algorithms. Version 3 of GraphBLAS - you could do a GrB_set to tell the operator, 'here's a hint: don't give me the input values to the matrix.'"
+"If you could somehow tell me this operator only depends on the row index and theta, I could use faster algorithms. Version 3 of GraphBLAS - you could do a GrB_set to tell the operator, 'here's a hint: don't give me the input values to the matrix.'"
 
 ---
 
@@ -397,7 +401,7 @@ Both have separate factory kernels and JIT paths.
 Used by: apply, reduce, mxm, kronecker, transpose, eWiseAdd, eWiseMult, assign, extract, select
 
 **Special case** [02:04:00]:
-"This may take order one time if all the stars align: no accumulator, no mask, T is T, C is empty. Just slap the data in and I'm done."
+"This may take O(1) time if all the stars align: no accumulator, no mask, T is T, C is empty. Just slap the data in and I'm done."
 
 Optimal path:
 - No mask present
@@ -445,7 +449,7 @@ Aggressive use of shallow copies:
 
 ### Work Space Management [00:10:00]
 [![00:10:00](https://img.youtube.com/vi/-taSMF1om0Y/default.jpg)](https://www.youtube.com/watch?v=-taSMF1om0Y&t=600s)
-"I have this little strangely misspelled thing called `work_space`. It's a statically declared array of bytes on the stack used for small things that would otherwise require malloc."
+"I have this little strangely misspelled thing called `werkspace`. It's a statically declared array of bytes on the stack used for small things that would otherwise require malloc."
 
 Purpose:
 - Avoid `alloca()` (not portable, especially on Windows)
@@ -466,6 +470,5 @@ Only identity operator factories include typecast logic:
 ## Session Notes
 
 **GraphBLAS Version**: 9.3.1 (recently released)
-**GPU System Status**: HyperSparse machine died (cooling system failed, end of life)
 **Recording Time**: Approximately 2 hours
 **Next Session Topics**: GB_accum_mask, transpose algorithm, eWiseAdd
