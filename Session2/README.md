@@ -16,7 +16,7 @@
   - [Sparse Format (CSR/CSC)](#sparse-format-csrcsc-003140---003400)
   - [Hypersparse Format](#hypersparse-format-003410---004000)
 - [Advanced Features and Optimizations](#advanced-features-and-optimizations)
-  - [Isovalued Matrices](#isovalued-matrices-004250---004630)
+  - [Iso-Valued Matrices](#isovalued-matrices-004250---004630)
   - [Format-Agnostic Kernels](#format-agnostic-kernels-001440---001530)
   - [Unified Iteration Pattern](#unified-iteration-pattern-004700---005800)
 - [Dynamic Graph Capabilities](#dynamic-graph-capabilities)
@@ -49,22 +49,22 @@ This session covers the internal data structures used in SuiteSparse GraphBLAS, 
 
 ### Source Code Structure [00:01:09 - 00:09:03]
 
-The matrix data structure is defined in the built-in folder, specifically in the `GrB_opaque.h` file. Key organizational points:
+The matrix data structure is defined in the GraphBLAS/Source/builtin folder, specifically in the `GrB_opaque.h` file. Key organizational points:
 
 - Core operations for matrices are in the matrix folder (create, reallocate, query operations)
 - Vector and scalar folders exist but are minimal since they share the same underlying structure
-- The actual data structure definition is in the built-in folder, not with the core operations
+- The actual data structure definition is in the GraphBLAS/Source/builtin folder, not with the core operations
 
-**Key Quote**: "A scalar is just a 1 by one matrix, no difference. Everything you can do with the matrix you can do with a 1 by one matrix and scalar. A GrB scalar is a 1 by one matrix internally, and a vector is just an N by one GrB matrix."
+**Key Quote**: "A scalar is just a 1-by-1 matrix. Everything you can do with
+the matrix you can do with a 1-by-1 matrix and scalar. A `GrB_scalar` is a 1-by-1
+matrix internally, and a `GrB_Vector` is just an n-by-1 `GrB_Matrix`."
 
 ### Unified Object Model [00:04:15 - 00:07:00]
 
 All three GraphBLAS objects (matrix, vector, scalar) use the same internal structure:
-- Uses a single include file with pound include to define all three types
+- Uses a single include file with #include to define all three types
 - This workaround is necessary because C's `_Generic` macro requires distinct types
 - Would prefer a single struct definition, but the C compiler needs three separate struct definitions for polymorphic functions
-
-**Key Quote**: "I had to literally create 3 structs like this. But I want the contents to be the same. So this is a little unfortunate use of pound include. I'm not using this in a templatized way. I'm using this in a fake C compiler way."
 
 ---
 
@@ -82,13 +82,13 @@ Every GraphBLAS object starts with:
 
 ### Type and Format Information [00:12:10 - 00:14:00]
 
-- **Type**: Pointer to GrB_Type (handles user-defined types, not just built-in codes)
+- **Type**: Pointer to `GrB_Type` (handles user-defined types, not just built-in codes)
 - **Vector dimension and length**: These define the matrix shape
-  - For CSR: dimension = number of rows, length = row length
-  - For CSC: dimension = number of columns, length = column length
+  - For CSR: vector dimension = number of rows, vector length = row length (# of columns)
+  - For CSC: vector dimension = number of columns, vector length = column length (# of rows)
 - **is_csc flag**: Determines if stored by column (true) or row (false)
 
-**Key Quote**: "I don't store the number of rows or number of columns in the matrix. I call this number the vector dimension. It's the number of vectors. This is the vector length. So if I have a matrix that's stored by column that's 10 by 4, it's the same data structure. These 2 are the same data structures. I just have a flag that says, 'Well, who are you?'"
+**Key Quote**: "I don't store the number of rows or number of columns in the matrix. I call the number of vectors the `vector dimension`. So if I have a matrix that's stored by column that's 10 by 4, it's the same data structure as a matrix stored by row that's 4-by-10. These 2 are the same data structures. I just have a flag that says, 'Well, who are you?'"
 
 ---
 
@@ -103,7 +103,7 @@ GraphBLAS uses four primary storage formats, each available in both by-row and b
 3. **Sparse**: Traditional CSR/CSC format
 4. **Hypersparse**: Doubly compressed format for very sparse matrices
 
-**Key Quote**: "I have a total of 8 formats. I have sparse, hypersparse, bitmap, and full, and all of these are by row or by column. So that's 8 formats. These formats are fortunate, and they sort of fit in a nice family. They all sort of fit together in a single family."
+**Key Quote**: "I have a total of 8 formats. I have sparse, hypersparse, bitmap, and full, and all of these are by row or by column. "
 
 ### Format Unification - The P-H-B-I-X Arrays [00:23:00 - 00:34:00]
 
@@ -121,16 +121,20 @@ Different formats use different subsets:
 - Sparse: P, I, and X
 - Hypersparse: P, H, I, and X
 
-**Key Quote**: "With these 4 macro, 5 macros, every matrix has all 5 components effectively, I can pretend. That's a very could be an expensive ternary test to put all the way down the innermost gut of the code. So the JIT doesn't do this."
+**Key Quote**: "With these 5 macros, every matrix has all 5 components effectively, I can pretend. That could be an expensive ternary test to put all the way down the innermost gut of the code. So the JIT doesn't do this; it compiles a kernel for each case."
 
 ### Full Format [00:24:30 - 00:27:00]
 
 - Only stores values in the X array
 - No gaps in storage (unlike LAPACK's leading dimension concept)
-- Can handle matrices up to 2^60 by 2^60 when isovalued
-- For isovalued full matrices, uses constant O(1) space
+- Can handle matrices up to 2^60 by 2^60 when iso-valued
+- For iso-valued full matrices, uses constant O(1) space
 
-**Key Quote**: "I can create a 2 to the 60 by 2 to the 60 full matrix that's isovalued in constant order, one space. But that makes it a little tricky. How many values? If you ask how many entries in a 2 to the 60 by 2 to 60 full matrix, I have to return infinity. I have to return uint64 max because I've overflowed."
+**Key Quote**: "I can create a 2 to the 60 by 2 to the 60 full matrix that's
+iso-valued in O(1) time and space.  How many values? That can be a hard
+question. If you ask how many entries in a 2 to the 60 by 2 to 60 full matrix,
+I have to return infinity. I have to return uint64 max because I've
+overflowed."
 
 ### Bitmap Format [00:27:10 - 00:29:00]
 
@@ -141,12 +145,10 @@ Different formats use different subsets:
 
 ### Sparse Format (CSR/CSC) [00:31:40 - 00:34:00]
 
-- Traditional compressed sparse row/column format
+- Traditional compressed sparse row/column format (CSR and CSC)
 - Uses P (pointers), I (indices), and X (values)
-- Can be isovalued, making X array size 1
+- Can be iso-valued, making X array size 1
 - Access pattern uses macros to handle both sparse and full cases uniformly
-
-**Key Quote**: "All of these matrix, all of these data structures can be isovalued. If it's isovalued, this is the same. But this changes. Then all the values are stored there. Getting the P entry of this matrix actually can be done with this with a ternary: iso question mark 0 colon P."
 
 ### Hypersparse Format [00:34:10 - 00:40:00]
 
@@ -156,18 +158,18 @@ Different formats use different subsets:
 - H array always kept sorted for efficient lookup
 - Enables efficient representation of graphs with huge node IDs but few edges
 
-**Key Quote**: "Imagine a matrix here that's not 5 by 10, but make it 10 to the 30 by 10 stored by row. How would I do that? I have 5 vectors in this matrix that are present that have something potentially in them. And I have to have their 5 names like this is row 1,000, this is row 1 million, this is row 3 billion. That's the H array."
+**Key Quote**: "Imagine a matrix here that's not 5 by 10, but make it 10 to the 30 by 10 stored by row but with 5 non-empty rows. How would I do that? I have 5 vectors in this matrix that are present that have something potentially in them. And I have to have their 5 names like this is row 1,000, this is row 1 million, this is row 3 billion. That's the H array."
 
 ---
 
 ## Advanced Features and Optimizations
 
-### Isovalued Matrices [00:42:50 - 00:46:30]
+### Iso-Valued Matrices [00:42:50 - 00:46:30]
 
 When all present entries have the same value:
 - X array becomes size 1 instead of size N
 - Critical for unweighted graphs where all edges = 1
-- Full isovalued matrices can represent arbitrarily large matrices in O(1) space
+- Full iso-valued matrices can represent arbitrarily large matrices in O(1) space
 - Used internally for operations like matrix-vector reductions
 
 **Key Quote**: "Unweighted graphs are all over the place in graph algorithms. And so matrices where all the entries that are present have the same value, whether it's 1 or pi, or whatever are really important."
@@ -187,7 +189,7 @@ Once inside kernels, the code becomes CSR/CSC agnostic:
 A single iteration pattern works across all four formats using macros:
 
 ```c
-for (K = 0; K < n_vectors; K++) {
+for (K = 0; K < nvec; K++) {
     J = GBH(H, K);  // Get vector name
     P_start = GBP(P, K);
     P_end = GBP(P, K+1);
@@ -202,8 +204,8 @@ for (K = 0; K < n_vectors; K++) {
 
 These macros hide the differences between formats:
 - **GBH**: Get vector name (K for most, H[K] for hypersparse)
-- **GBP**: Get vector start position (P[K] or K*vlen)
-- **GBI**: Get row index (I[P] or P % vlen)
+- **GBP**: Get vector start position (P[K] or `K*vlen` for full)
+- **GBI**: Get row index (I[P] or P % vlen for full)
 - **GBX**: Get value (X[P] or X[0] if iso)
 
 **Key Quote**: "What that means is I can write a single loop to move through all 4 formats. I get the vector length. I walk through all my vectors. I want to know the name of my Kth vector. Well, for sparse bitmap and full it's just K, but hypersparse it's H of K. Same line of code that does all 4 cases."
@@ -224,7 +226,7 @@ Zombies are entries marked for deletion but not yet removed from the data struct
 - Created by delete operations and some assign operations
 - Killed in batch during matrix wait operations
 
-**Key Quote**: "If it's a 3, and I want to mark it for deletion, I put a minus 3 there. Minus 3 means yeah, you were row 3, but you've been deleted because it's a negative. It's like a tombstone. Your name is 3, but you're dead. That's a zombie. You're still in the land of the living but you're dead."
+**Key Quote**: "If it's a 3, and I want to mark it for deletion, I put a minus 3 there. Minus 3 means yeah, you were row 3, but you've been deleted because it's a negative. It's like a tombstone. Your name is 3, but you're dead. That's a zombie. You're still in the land of the living but you're dead. (actually it would not be a minus three, but flip(3) = -5 but it's easier to explain the tombstone if I say minus 3 for row index 3."
 
 **Key Quote**: "Zombies are really useful. If I have a bunch of deletions happening all at same time, I'll do all the deletions, and I may postpone the actual construction of the actual compacted matrix with the deletions been applied. I can do that later."
 
@@ -236,16 +238,16 @@ Pending tuples are insertions that haven't been added to the sparse structure ye
 
 - Only for sparse/hypersparse formats
 - Stored as three arrays: row indices, column indices, values
-- Includes an operator for handling duplicate updates
+- Includes a dup operator for handling duplicate updates
 - Disjoint from existing entries (updates are applied immediately)
-- Assembled using GrB_Matrix_build + element-wise add
+- Assembled using `GrB_Matrix_build` + element-wise add
 - Enables batching of insertions
 
-**Key Quote**: "A pending tuple is an entry that I tried to insert into the matrix, and I couldn't, because it's not there. Stick this number AIJ into the matrix, oops it's not there already. So what do I do? I'll do it later, maybe."
+**Key Quote**: "A pending tuple is an entry that I tried to insert into the matrix, and I couldn't, because it's not there. Stick this number AIJ into the matrix, oops it's not there already. So what do I do? I'll do it later."
 
-**Non-Associative Operators**: Unlike the spec, GraphBLAS allows non-associative dupe operators like "second" to support "take the last value" semantics:
+**Non-Associative Operators**: A dup operator is provided to "sum" up duplicates.  Unlike the spec, SuiteSparse/GraphBLAS allows non-associative dup operators like "second" to support "take the last value" semantics:
 
-**Key Quote**: "In GraphBLAS, the GraphBLAS API for the GrB matrix build function says that the dupe operator must be associative. But I allow my dupe operator for GrB matrix build to be non associative, because I want to use things like the first or second operator. Second means if you see 2 duplicates take the last one in the list."
+**Key Quote**: "In GraphBLAS, the GraphBLAS API for the GrB matrix build function says that the dup operator must be associative. But I allow my dup operator for GrB matrix build to be non associative, because I want to use things like the first or second operator. Second means if you see 2 duplicates take the last one in the list."
 
 ### Relationship Between Zombies and Pending Tuples [01:31:50 - 01:33:00]
 
@@ -305,7 +307,7 @@ Jumbled is a special property of sparse/hypersparse matrices indicating indices 
 
 ### Non-Empty Vector Count [01:06:20 - 01:07:30]
 
-The number of non-empty vectors (n_vec):
+The number of non-empty vectors (nvec_nonempty):
 - May be unknown (set to -1)
 - Can differ from the number stored in hypersparse list (some could be empty)
 - Computation delayed until needed
@@ -326,7 +328,11 @@ The session concluded with a preview of remaining topics for future sessions:
 - Construction is itself pending work - built only when needed by an algorithm
 - GPU-friendly design
 
-**Key Quote**: "My hash buckets are just a matrix. Single matrix is all the hash buckets. Every row is a hash bucket. The construction of the hyper hash is pending work for a hyper sparse matrix. You can have a hyper sparse matrix that doesn't have it yet because the next algorithm says I don't care I'm not going to use it."
+**Key Quote**: "My hash buckets are just a matrix. Single `GrB_Matrix` contains
+all the hash buckets. Every row is a hash bucket. The construction of the hyper
+hash is pending work for a hyper sparse matrix. You can have a hyper sparse
+matrix that doesn't have it yet because the next algorithm says I don't care
+I'm not going to use it."
 
 ### Sparsity Control [01:44:00 - 01:44:30]
 
