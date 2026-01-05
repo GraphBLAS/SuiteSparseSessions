@@ -1,6 +1,7 @@
 # Session 10 Summary
 
 Session discussing the transpose algorithm in SuiteSparse GraphBLAS, covering implementation details, multiple algorithm variants, parallelization strategies, and integration with other operations.
+This topic is continued in Session 12.
 
 ## Table of Contents
 - [Transpose Overview and Entry Points](#transpose-overview-and-entry-points)

@@ -4,7 +4,7 @@
 - [Overview](#overview)
 - [Transpose and Apply Integration](#transpose-and-apply-integration)
   - [Why Transpose is Fused with Apply](#why-transpose-is-fused-with-apply-000002)
-  - [Gb_operator Structure](#gb_operator-structure-000600)
+  - [`GB_Operator` Structure](#gb_operator-structure-000600)
 - [Operator Structure Details](#operator-structure-details)
   - [Multiple Names Per Object](#multiple-names-per-object-001000)
   - [OP Code Organization](#op-code-organization-001328)
@@ -46,6 +46,15 @@
 
 ## Overview
 This session focuses on the transpose operation in SuiteSparse GraphBLAS, including its fusion with the apply operation, multiple algorithm implementations, and extensive optimization strategies.
+This Session is a continuation of the discussion of the transpose method in Session 10.
+
+Next, starting with the topic of
+[Shallow vs Deep Copies](#shallow-vs-deep-copies)
+the discussion moves away from the transpose methods to discuss more details of the matrix data structure,
+the GraphBLAS accumulator step, testing/validation of GraphBLAS,
+
+Finally, the topic of discussion moves back to the transpose, with the 
+[Integration with Other Operations](#integration-with-other-operations) topic, and following.
 
 ---
 
@@ -61,7 +70,7 @@ The transpose operation is tightly integrated with the apply operation because:
 
 **Key quote:** "I wanted to be able to do a complex conjugate transpose fast. That's just an apply with a conjugate operator and a transpose descriptor, one line of code, one line call to GraphBLAS. I should be able to do that as a single fuse operation." [00:20:16]
 
-### Gb_operator Structure [00:06:00]
+### `GB_Operator` Structure [00:06:00]
 [![00:06:00](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=360s)
 All operator types (unary, binary, index unary, index binary) share the same internal struct:
 - Four function pointers for different operator types
@@ -79,7 +88,7 @@ All operator types (unary, binary, index unary, index binary) share the same int
 ### Multiple Names Per Object [00:10:00]
 [![00:10:00](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=600s)
 Every operator has two names:
-- Username: Settable via Grb_Name (spec-defined feature)
+- Username: Settable via `GrB_NAME` (spec-defined feature)
 - JIT name: Required for code generation, actual function names
 
 **Note:** Tim requested something different from the spec committee - he needed function names for the JIT compiler, but got the user-settable name feature instead. [00:10:10]
@@ -101,8 +110,8 @@ Operators are organized by numeric ranges:
 ### Multiple Entry Points [00:01:26]
 [![00:01:26](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=86s)
 The transpose functionality is accessed from several places:
-- `Grb_transpose`: User-facing method
-- `Gb_transpose`: Internal worker
+- `GrB_transpose`: User-facing method
+- `GB_transpose`: Internal worker
 - From `apply` when transpose descriptor is set
 - From internal methods needing format conversion
 
@@ -111,12 +120,10 @@ The transpose functionality is accessed from several places:
 GraphBLAS can sometimes perform "cheap" (O(1)) transpose operations:
 
 **Case 1: Double transpose**
-If the descriptor requests transpose on `Grb_transpose`, it's a double transpose (identity).
+If the descriptor requests transpose on `GrB_transpose`, it's a double transpose (identity).
 
 **Case 2: Format mismatch**
 If input is CSC and output is CSR (or vice versa), requested transpose becomes a simple copy.
-
-**Key quote:** "If you've asked me to do a transpose, you've actually asked me to do nothing at all. Just make a copy, because that is the output. If they're different and you've asked me not to transpose but the CSR and CSC formats are different of the input and output, then I actually do have to transpose the matrix." [00:24:37]
 
 ---
 
@@ -191,8 +198,6 @@ When transposing a sparse column vector to a row vector:
 - Two-pass algorithm: count, then cumsum, then reverse cumsum to position
 - Doesn't scale beyond ~8-16 threads due to memory
 
-**Key insight:** "As the number of threads grows, this method just hopelessly does not scale... eventually, at some point, it says, forget the atomics. Let's just do the builder. Let's just do sort." [01:35:51]
-
 ---
 
 ## Iso-Valued Optimization
@@ -212,8 +217,6 @@ A matrix where all entries share one value - essentially a symbolic/pattern matr
 
 **Benefit:** Only the sparsity pattern needs to be computed in parallel. The single value is computed once. Massive speedup for structural operations.
 
-**Key quote:** "This is a function that says, give me the code Iso. It's telling me if it's Iso valued. And if so, what kind of isoness it is." [00:51:10]
-
 ---
 
 ## Template and JIT System
@@ -221,9 +224,9 @@ A matrix where all entries share one value - essentially a symbolic/pattern matr
 ### Template Hierarchy [01:26:30]
 [![01:26:30](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=5190s)
 Three core templates for different matrix formats:
-- `Gb_transpose_sparse`: Handles sparse/hypersparse (3 variants: sequential, atomic, non-atomic)
-- `Gb_transpose_bitmap`: Bitmap matrices
-- `Gb_transpose_full`: Full/dense matrices
+- `GB_transpose_sparse`: Handles sparse/hypersparse (3 variants: sequential, atomic, non-atomic)
+- `GB_transpose_bitmap`: Bitmap matrices
+- `GB_transpose_full`: Full/dense matrices
 
 **Problem with bitmap/full:** "These 2 methods I'm not happy with. But they work." Uses div/mod for position calculation instead of proper tiling. [01:30:25]
 
@@ -314,7 +317,7 @@ assert(parallel_result == sequential_result);
 #endif
 ```
 
-**Note:** "Terribly slow. You have to edit the code to turn this on." [01:10:26]
+**Note:** "Debugging is terribly slow. You have to edit the code to turn the feature on." [01:10:26]
 
 ### JIT Kernel Count [01:48:37]
 [![01:48:37](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=6517s)
@@ -330,8 +333,6 @@ When unpacking a matrix in a specific format:
 - User requests CSR format
 - Matrix is actually stored as CSC
 - Must transpose before unpacking (expensive!)
-
-**Recommendation:** Query format first, then call appropriate unpack method to avoid conversion. [01:51:23]
 
 ### Matrix Multiply Usage [01:53:00]
 [![01:53:00](https://img.youtube.com/vi/g3F8Q8KlzFc/default.jpg)](https://www.youtube.com/watch?v=g3F8Q8KlzFc&t=6780s)
@@ -376,3 +377,4 @@ Transpose leverages shallow copies extensively:
 8. **Testing Rigor**: Debug mode runs parallel and sequential versions in parallel to verify correctness
 
 **Final thought:** "How many algorithms do you have to do the transpose? I don't know. I lose track of counting... It's mix and match. How do you count them? I don't know." [01:48:19]
+

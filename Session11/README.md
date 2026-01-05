@@ -1,13 +1,5 @@
 # Session 11 Summary
 
-This session discusses the Source/builder folder, containing the user-callable `GrB_Matrix_build`
-method and related methods, and internal methods used throughout GraphBLAS.  The internal
-method `GB_builder` is used for matrix/vector build, but also many other methods:
-`GxB_concat`, matrix/vector import from COO format, `GxB_reshape`, `GB_wait` to
-assemble pending tuples, and `GB_hyper_hash_build` to construct an hash-bucket-based "inverse" of
-a matrix hyperlist (`A->h`).  In GraphBLAS v10.3.0 and later, `GB_builder` is used by
-`GrB_extract` to construct the "inverse" of I or J when computing C=A(I,J).
-
 ## Table of Contents
 - [Introduction and Overview](#introduction-and-overview-000003)
 - [Matrix States and Completion](#matrix-states-and-completion-000047)
@@ -59,6 +51,15 @@ a matrix hyperlist (`A->h`).  In GraphBLAS v10.3.0 and later, `GB_builder` is us
 - [Technical Scope](#technical-scope)
 
 ---
+
+## Overview
+This session discusses the Source/builder folder, containing the user-callable `GrB_Matrix_build`
+method and related methods, and internal methods used throughout GraphBLAS.  The internal
+method `GB_builder` is used for matrix/vector build, but also many other methods:
+`GxB_concat`, matrix/vector import from COO format, `GxB_reshape`, `GB_wait` to
+assemble pending tuples, and `GB_hyper_hash_build` to construct an hash-bucket-based "inverse" of
+a matrix hyperlist (`A->h`).  In GraphBLAS v10.3.0 and later, `GB_builder` is used by
+`GrB_extract` to construct the "inverse" of I or J when computing C=A(I,J).
 
 ## Introduction and Overview [00:00:03]
 [![00:00:03](https://img.youtube.com/vi/InpR7kaKKbY/default.jpg)](https://www.youtube.com/watch?v=InpR7kaKKbY&t=3s)
