@@ -7,6 +7,60 @@ This repository contains 14 video interview sessions with Dr. Tim Davis (Texas A
 The interviews span from May 2024 to January 2025, progressively building understanding from foundational concepts to advanced implementation details. Topics include matrix storage formats, the five kernel types, JIT compilation infrastructure, and specific algorithm implementations for operations like transpose, reduce, apply, and element-wise operations.
 More sessions are planned in the future.
 
+Future topics that need to be discussed (from the Source/ folders):
+
+    - assign: `GrB_assign` (C(I,J)=A) and variants
+    - concat: concatenat matrices
+    - container: load/unload from opaque objects into non-opaque arrays
+    - context: manage compute resources
+    - convert: convert sparse/hyper/full/bitmap
+    - cumsum: cumulative sum
+    - diag: create diagonal matrix from vector, get diagonal from matrix
+    - dup: duplicate a matrix or vector
+    - element: get/set a single entry
+    - emult: ewise multiply
+    - extract:  C=A(I,J) and variants
+    - extractTuples: extract COO from an opaque object
+    - `get_set`: `GrB_get` and `GrB_set` and variants
+    - global: global settings
+    - hyper: support methods for hypersparse matrices
+    - ij: properties of I and J for extract (C=A(I,J)) and assign (C(I,J)=A)
+    - init: `GrB_init`
+    - iso: support for iso-valued matrices and operations
+    - iterator: `GxB_Iterator` object and its operations
+    - `jit*`: the JIT
+    - kronecker: `GrB_kronecker`
+    - mask: mask/accum phase, `C<M>+=T`
+    - math: basic math operations
+    - matrix: support for basic operations on a `GrB_Matrix`
+    - memory: malloc/free wrappers, parallel memset, memcpy, etc
+    - mxm: `GrB_mxm` and variants
+    - nvals: `GrB_Matrix_nvals` and variants
+    - ok: debugging support
+    - omp: OpenMP support
+    - pending: pending tuples
+    - `pji_control`: 32/64 bit integers
+    - positional: support for positional operators
+    - print: printing opaque objects
+    - reshape
+    - resize
+    - scalar: support for `GrB_Scalar` objects
+    - select: `GrB_select`
+    - serialize: `GrB_serialize`; see also `lz4_wrapper` and `zstd_wrapper`
+    - sort
+    - split
+    - transplant
+    - type: support for `GrB_Type` objects
+
+The two most complex topics in the list above are mxm and assign (each about 16
+KLOC in size), and each of those will require multiple sessions.  The jitifyer
+(in the `jit*` folders) is about 14 KLOC, but much of it has already been
+discussed, indirectly at least.  Details of how the JIT works have not been
+discussed yet; this may merit at least a session.  The rest of the folders are
+all under 4 KLOC; most are smaller (emult: 3.6 KLOC, sort: 3.4, select 2.7,
+etc, extract: 2.7 KLOC, and smaller), and could be done in one Session each, or
+less.
+
 ---
 
 ## Table of Contents
