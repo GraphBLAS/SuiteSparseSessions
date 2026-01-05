@@ -45,6 +45,10 @@
 
 ---
 
+## Overview
+Session 13 starts a new topic: element-wise "add".  It computes C=A+B where the pattern
+of C is the set union of A and B, but where the operator can be any binary operator.
+
 ## Overview of SuiteSparse GraphBLAS Structure
 [00:00:00]
 
@@ -95,7 +99,7 @@ Tim explained that element-wise add performs a **set union** of matrix patterns:
 - If entry exists only in A: `C(i,j) = op(alpha, A(i,j))`
 - If entry exists only in B: `C(i,j) = op(B(i,j), beta)`
 
-**Key Quote:** "It should have been called simply Union. You're doing a set union of the pattern of both matrices. And then what you have is an operator that says what to do when you have 2 entries that overlap at the same location."
+**Key Quote:** "`eWise_add` should have been called simply Union in the spec. You're doing a set union of the pattern of both matrices. And then what you have is an operator that says what to do when you have 2 entries that overlap at the same location."
 
 ### Use Cases and Advantages
 [00:12:20]
@@ -135,7 +139,7 @@ When explicit transposes are necessary, Tim performs several optimizations:
 
 **Performance Consideration:** User code should manage transposes when possible to avoid repeated work:
 
-**Key Quote:** "If you see a transpose in the output, know there be costs to that. If you want me to transpose it, I'll transpose it, but I'll throw it away. If you want to keep the transpose, transpose the mask first please, and then call me and then reuse it later yourself."
+**Key Quote:** "If you see a transpose in the output, know there are costs to that. If you want me to transpose it, I'll transpose it, but I'll throw it away. If you want to keep the transpose, transpose the mask first please, and then call me and then reuse it later yourself."
 
 Tim noted that LAGraph caches transposes in graph objects, and MKL Sparse takes a similar approach, but GraphBLAS itself doesn't cache transposes within matrix objects.
 
@@ -145,7 +149,7 @@ Tim noted that LAGraph caches transposes in graph objects, and MKL Sparse takes 
 For positional operators that depend on row/column indices:
 
 - When format changes require index reinterpretation, Tim uses "flip IJ"
-- For built-in operators, he can swap operator variants (e.g., first_i becomes first_j)
+- For built-in operators, he can swap operator variants (e.g., `first_i` becomes `first_j`)
 - For user-defined operators, indices must be passed in reversed order
 
 **Key Quote:** "If the operator's positional, I have to revise the operator essentially. I can do this in 2 ways. I can just wherever I call the operator, later on I'll just reverse the roles of I and J. Or it's a lot simpler - I have a first eye operator and you reverse it, let me just rename it first J."
@@ -159,7 +163,7 @@ For positional operators that depend on row/column indices:
 Tim introduced the concept of "zombies" - entries marked for future deletion that remain in the data structure:
 
 - **Live entry:** row index >= 0
-- **Zombie entry:** tagged with negative index via `GB_zombie()` function
+- **Zombie entry:** tagged with negative index via `GB_ZOMBIE()` function
 - **Special value:** -1 represents "nothing there"
 
 ### The Zombie Function
@@ -167,14 +171,17 @@ Tim introduced the concept of "zombies" - entries marked for future deletion tha
 
 ```c
 // Self-inverting function around -1
-GB_zombie(0) = -2
-GB_zombie(-2) = 0
-GB_zombie(-1) = -1
+GB_ZOMBIE(0) = -2
+GB_ZOMBIE(-2) = 0
+GB_ZOMBIE(-1) = -1
 ```
 
 **Key Quote:** "A zombie is an entry marked for future deletion. It's still in the land of the living, but it's dead. The way I mark it is I have a function - it's a self-inverting function."
 
 Tim mentioned zombies appear in many algorithms but didn't go into full detail since set/get element operations haven't been covered yet.
+
+NOTE: in later versions of GraphBLAS, the zombie function has changed.  In v9, it was `GB_ZOMBIE(i) = (-(i)-2)`.
+In v10, it is now `GB_ZOMBIE(i) = ~(i)`, the ones complement of i.  The new function is still its own inverse.
 
 ## Debugging Infrastructure
 [00:51:00]
@@ -229,7 +236,7 @@ The debug system uses `GB_0`, `GB_1`, etc. instead of plain numbers to make sear
 ### Binary Operator Factory
 [00:57:40]
 
-The `bin_op_factory` is a massive switch case (1,000 lines) that dispatches to pre-compiled kernels for:
+The `binop_factory` is a massive switch case (1,000 lines) that dispatches to pre-compiled kernels for:
 - Min/max operators
 - Arithmetic operators (plus, times, minus, divide)
 - Boolean operators
@@ -332,7 +339,7 @@ After computing the temporary result matrix T, the final step determines if addi
 - No accumulator present
 - No transpose of output needed
 - Either no mask OR mask was already applied
-- C is empty or C_replace is true
+- C is empty or `C_replace` is true
 
 **Otherwise:** Call the mask/accumulator method which may recursively call add again
 
@@ -353,7 +360,7 @@ Tim explained why GraphBLAS uses C with macros rather than C++:
 - GraphBLAS matrices can change type at runtime (spec requirement)
 - Must support user-defined types that can be freed and reallocated
 
-**Key Quote:** "C plus plus can only do compile time templating. I can do runtime templating. The GraphBLAS matrix can change its type. You can free it and reallocate it with a new type - that's in the spec. So I have to be able to handle that."
+**Key Quote:** "C++ can only do compile time templating. I can do runtime templating. The GraphBLAS matrix can change its type. You can free it and reallocate it with a new type - that's in the spec. So I have to be able to handle that."
 
 ## Technical Details and Optimizations
 
@@ -438,6 +445,7 @@ Tim maintains a strict convention for function calls:
 
 The session concluded with agreement to continue the deep dive into sparse element-wise add in the next session, starting at the `GB_add()` entry point that implements the multi-phase sparse algorithm.
 
-**Key Quote:** "We start here next time." [Pointing to GB_add sparse implementation]
+**Key Quote:** "We start here next time." [Pointing to `GB_add` sparse implementation]
 
 Michel noted the importance of tracking the location for the next session given the complexity of the deep dive.
+
