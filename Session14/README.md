@@ -10,7 +10,7 @@
 - [32-bit vs 64-bit Integer Infrastructure](#32-bit-vs-64-bit-integer-infrastructure)
   - [New Matrix Integer Types](#new-matrix-integer-types-001620)
   - [Macro-based Type Handling](#macro-based-type-handling-004247)
-  - [GB_GET/GB_SET/GB_INC Macros](#gb_getgb_setgb_inc-macros-004333)
+  - [`GB_IGET/GB_ISET` Macros](#gb_getgb_setgb_inc-macros-004333)
 - [Workspace Management ("Werk")](#workspace-management-Werk)
   - [The Werk Data Structure](#the-Werk-data-structure-004703)
   - [Stack-based Workspace with Push/Pop](#stack-based-workspace-with-pushpop-005536)
@@ -23,8 +23,8 @@
   - [Parallel Set Union of Hyperlists](#parallel-set-union-of-hyperlists-012158)
   - [Task Structure and Types](#task-structure-and-types-013527)
   - [Ek Slice vs Ewise Slice](#ek-slice-vs-ewise-slice-013950)
-  - [P_Slice: Recursive Work Partitioning](#p_slice-recursive-work-partitioning-015600)
-  - [Slice_Vector for Dense Columns](#slice_vector-for-dense-columns-020849)
+  - [PSlice: Recursive Work Partitioning](#p_slice-recursive-work-partitioning-015600)
+  - [`GB_slice_vector` for Columns with many entries](#slice_vector-for-columns-with-many-entries-020849)
 - [Code Style and Naming Conventions](#code-style-and-naming-conventions)
   - [Greppable Function Calls](#greppable-function-calls-002753)
   - [Memory Management Philosophy](#memory-management-philosophy-013616)
@@ -34,9 +34,9 @@
   - [Thread and Chunk Sizing](#thread-and-chunk-sizing-010635)
   - [Task Count Strategy](#task-count-strategy-014948)
 - [Broader Usage Patterns](#broader-usage-patterns)
-  - [GB_Add Usage Beyond Element-wise](#gb_add-usage-beyond-element-wise-001000)
+  - [`GB_add` Usage Beyond Element-wise](#gb_add-usage-beyond-element-wise-001000)
   - [Disjoint Matrices Optimization](#disjoint-matrices-optimization-000938)
-  - [Ewise_Slice Usage Across Methods](#ewise_slice-usage-across-methods-021315)
+  - [`Ewise_Slice` Usage Across Methods](#ewise_slice-usage-across-methods-021315)
 - [Key Takeaways](#key-takeaways)
 
 ---
@@ -82,7 +82,7 @@ Dr. Davis explains the typecast requirements differ between E-wise Add and E-wis
 The E-wise operations have multiple entry points that eventually funnel into common core methods. The code uses a Boolean flag to distinguish between E-wise Add and E-wise Union behavior.
 
 **Key Quote:**
-> "Both of these methods eventually come back and call E-wise, which does both E-wise multiply, E-wise add, and also E-wise union. That method calls the method in the add folder, which is gb_add.c." [00:04:42]
+> "Both of these methods eventually come back and call `GB_ewise`, which does both E-wise multiply, E-wise add, and also E-wise union. That method calls the method in the add folder, which is `GB_add.c`." [00:04:42]
 
 **Timestamps:**
 - [00:04:03] - Method hierarchy overview
@@ -127,24 +127,25 @@ Matrices now have up to three different integer types:
 [![00:42:47](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=2567s)
 
 **Discussion:**
-Dr. Davis developed a macro system to handle 32/64-bit decisions at runtime without creating thousands of kernel variants. The system uses three pointers (void*, uint32_t*, uint64_t*) where only one of the typed pointers is non-null.
+Dr. Davis developed a macro system to handle 32/64-bit decisions at runtime
+without creating thousands of kernel variants. The system uses three pointers
+(`void*`, `uint32_t*`, `uint64_t*`) where only one of the typed pointers is non-null.
 
 **Key Quote:**
-> "I decided what I could do is do it on a very late basis. Most of my algorithms push the decision 'are you 32 bit or 64 bit' down to the very, very fine grain step. I declare 3 pointers: one is a void pointer, and the other 2 are either unsigned 32 or 64. One is null." [00:42:47]
+> "I decided what I could do is do it on a very late basis. Most of my algorithms push the decision 'are you 32 bit or 64 bit' down to the very, very fine grain step. I declare 3 pointers: one is a void pointer, and the other 2 are either unsigned 32 or 64 (one of which is null)." [00:42:47]
 
 **Timestamps:**
 - [00:42:47] - Macro templating approach explained
 - [00:43:33] - Example usage shown
 - [01:09:40] - JIT kernel specialization
 
-### GB_GET/GB_SET/GB_INC Macros [00:43:33]
+### `GB_IGET/GB_ISET` Macros [00:43:33]
 [![00:43:33](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=2613s)
 
 **Discussion:**
-Three fundamental macros handle runtime type selection:
-- **GB_GET**: Reads from 32-bit or 64-bit array, returns 64-bit value
-- **GB_SET**: Writes to appropriate 32-bit or 64-bit array
-- **GB_INC**: Increments value in appropriate array
+Two fundamental macros handle runtime type selection for the 32/64-bit integer index types:
+- **GB_IGET**: Reads from 32-bit or 64-bit array, returns 64-bit value (was named `GB_GET` in earlier versions)
+- **GB_ISET**: Writes to appropriate 32-bit or 64-bit array (was named `GB_SET` in earlier versions)
 
 In JIT kernels, these macros compile to direct array access with no branching.
 
@@ -158,13 +159,13 @@ In JIT kernels, these macros compile to direct array access with no branching.
 [![00:47:03](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=2823s)
 
 **Discussion:**
-The "Werk" (German-inspired name for "work") is a workspace structure that serves three purposes:
+The "Werk" (German name for "work") is a workspace structure that serves three purposes:
 1. Small stack-based workspace (16KB)
 2. Error handling setup (logger, error messages)
 3. Integer control settings (P/J/I control for 32/64-bit decisions)
 
 **Key Quote:**
-> "I named it this way, not because I'm making fun of the German work, but I wanted to have a workspace that I could look for easily and grep for it. I use the word work all over the place, so let's make it 'Werk' and then I can grep for it." [00:47:43]
+> "I named it this way, not because I'm making fun of the German word for work, but I wanted to have a workspace that I could look for easily and grep for it. I use the word work all over the place, so let's make it 'Werk' and then I can grep for it." [00:47:43]
 
 **Timestamps:**
 - [00:47:03] - Werk introduction
@@ -190,10 +191,8 @@ The Werk provides a 16KB static workspace with push/pop operations to avoid mall
 **Discussion:**
 The entire Werk workspace system was necessitated by Microsoft's C compiler not supporting variable-length arrays (VLAs), a standard C99 feature. This forced creation of a manual stack implementation.
 
-**Key Quote:**
-> "All I would do is just say 'work[3 times n_tasks plus one]' - there, full stop. Just use a variable length array in C. It's fine. Little compiler will just say 'here, sure, go for it.' Microsoft says, 'what is that?' It doesn't support it." [00:58:43]
-
 Additionally, user-defined types are limited to 1024 bytes on Windows due to the same VLA limitation.
+This can be revised in the future (see `GB_VLA_MAXSIZE`) if desired.
 
 **Timestamps:**
 - [00:59:08] - Microsoft VLA problem
@@ -278,7 +277,7 @@ When both A and B are hypersparse, computing the set union of their hyperlists i
 **Discussion:**
 The task list uses a struct array to manage parallel work. Tasks come in two varieties:
 - **Coarse tasks**: Handle multiple vectors together
-- **Fine tasks**: Slice individual dense vectors into sub-pieces
+- **Fine tasks**: Slice individual vectors with many entriesinto sub-pieces
 
 The task struct contains start/finish positions for up to 4 different matrices (C, A, B, M), allowing consistent slicing across inputs.
 
@@ -295,21 +294,21 @@ The task struct contains start/finish positions for up to 4 different matrices (
 
 **Discussion:**
 Two different slicing strategies:
-- **Ek Slice**: For single matrix - divides entries (E) uniformly and finds vectors (K) they fall into, may split vectors
-- **Ewise Slice**: For multiple matrices - must maintain coherent slicing across all input/output matrices
+- **Ek Slice**: For single matrix - divides entries (E) uniformly and finds vectors (K) they fall into, may split vectors (`GB_ek_slice`)
+- **Ewise Slice**: For multiple matrices - must maintain coherent slicing across all input/output matrices (`GB_ewise_slice`)
 
 **Key Quote:**
-> "ek_slice is slicing the entries and finding the K's that they're in. This is easy to do but only really works nicely if I have one matrix to deal with. If I have lots of matrices, I have to make slicing that's coherent across all the different matrices." [01:43:43]
+> "`GB_ek_slice` is slicing the entries (E) and finding the K's that they're in. This is easy to do but only really works nicely if I have one matrix to deal with. If I have lots of matrices, I have to make slicing that's coherent across all the different matrices." [01:43:43]
 
 **Timestamps:**
 - [01:39:50] - Ek slice explained with diagram
 - [01:43:43] - Multi-matrix coherence requirement
 
-### P_Slice: Recursive Work Partitioning [01:56:00]
+### `GB_p_slice`: Recursive Work Partitioning [01:56:00]
 [![01:56:00](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=6960s)
 
 **Discussion:**
-The P_Slice method recursively partitions irregular work into balanced tasks:
+The `GB_p_slice` method recursively partitions irregular work into balanced tasks:
 1. Work is represented as a cumulative sum array
 2. Recursively split region in half
 3. Examine work on each side
@@ -324,22 +323,22 @@ Comes in two variants:
 > "I don't do a binary search, just cut it cheaply in half. Then I look at how much work there is on either side of that halfway point, and if the bulk of the work is on to the left, I'll put most of the tasks over there, and just maybe fewer tasks over to the right, and then I'll just repeat recursively." [02:03:28]
 
 **Timestamps:**
-- [01:56:00] - P_Slice introduction
+- [01:56:00] - `GB_p_slice` introduction
 - [02:00:20] - Recursive worker algorithm
 - [02:06:02] - Approximate vs perfect balance trade-offs
 
-### Slice_Vector for Dense Columns [02:08:49]
+### `GB_slice_vector` for Columns with many entries [02:08:49]
 [![02:08:49](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=7729s)
 
 **Discussion:**
-When a coarse task contains a single vector with too much work, the Slice_Vector method divides that one vector into multiple fine tasks across the 3-4 input/output matrices consistently.
+When a coarse task contains a single vector with too much work, the `GB_slice_vector` method divides that one vector into multiple fine tasks across the 3-4 input/output matrices consistently.
 
 **Key Quote:**
-> "I need some help here. I need 4 fine grain tasks. So I take this coarse task doing one vector and they go chop, chop, chop, chop, chop. That chop is Slice_Vector - it's going to cut the 3 matrices into pieces, one piece per fine task with roughly the target amount of work." [02:10:49]
+> "I need some help here. I need 4 fine grain tasks. So I take this coarse task doing one vector and they go chop, chop, chop, chop, chop. That chop is `GB_slice_vector` - it's going to cut the 3 matrices into pieces, one piece per fine task with roughly the target amount of work." [02:10:49]
 
 **Timestamps:**
-- [02:08:49] - Dense vector problem
-- [02:10:51] - Slice_Vector purpose
+- [02:08:49] - "Dense" vector problem (by "dense" I mean a vector with many many entries)
+- [02:10:51] - `GB_slice_vector` purpose
 - [02:12:27] - Multi-method usage (12 different algorithms)
 
 ## Code Style and Naming Conventions
@@ -421,7 +420,7 @@ GraphBLAS dynamically adjusts thread count based on work size using a "chunk" pa
 GraphBLAS typically creates many more tasks than threads (32x by default) to enable load balancing through dynamic scheduling. Imperfect task balance is acceptable when there are enough tasks.
 
 **Key Quote:**
-> "I've got 32 times the number of threads for this particular algorithm. If I've got 8 threads, I've got a lot of tasks. Some are imbalanced. I'm gonna schedule them later on dynamically anyway, and that'll all even out." [02:06:07]
+> "I've got a number of tasks that is 32 times the number of threads for this particular algorithm. If I've got 8 threads, I've got a lot of tasks. Some are imbalanced. I'm gonna schedule them later on dynamically anyway, and that'll all even out." [02:06:07]
 
 **Timestamps:**
 - [01:49:48] - Task-to-thread ratio
@@ -429,18 +428,18 @@ GraphBLAS typically creates many more tasks than threads (32x by default) to ena
 
 ## Broader Usage Patterns
 
-### GB_Add Usage Beyond Element-wise [00:10:00]
+### `GB_add` Usage Beyond Element-wise [00:10:00]
 [![00:10:00](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=600s)
 
 **Discussion:**
-The GB_add method is used in multiple contexts:
+The `GB_add` method is used in multiple contexts:
 - Element-wise add/union (user-facing)
 - Accumulator step in mask application
 - Pending tuple summation during matrix construction
 - Wait operation to flush pending updates
 
 **Key Quote:**
-> "GB_add is used as the element-wise add and union, but the element-wise add is also used as the accumulator step. It's also used in pending summation of pending tuples. When you do GB_wait, what I do is take the matrix, take pending tuples, build them into a matrix, and add them together." [00:10:19]
+> "`GB_add` is used as the element-wise add and union, but the element-wise add is also used as the accumulator step. It's also used in pending summation of pending tuples. When you do `GB_wait`, what I do is take the matrix, take pending tuples, build them into a matrix, and add them together." [00:10:19]
 
 **Timestamps:**
 - [00:10:00] - Multiple use cases
@@ -459,11 +458,13 @@ A special flag `A_and_B_disjoint` enables optimizations when matrices have no ov
 - [00:09:38] - Disjoint flag introduction
 - [00:11:47] - Wait operation usage
 
-### Ewise_Slice Usage Across Methods [02:13:15]
+### `Ewise_Slice` Usage Across Methods [02:13:15]
 [![02:13:15](https://img.youtube.com/vi/uYqRvag62sc/default.jpg)](https://www.youtube.com/watch?v=uYqRvag62sc&t=7995s)
 
 **Discussion:**
-The ewise_slice method is used by at least 12 different GraphBLAS operations: element-wise add, element-wise multiply, element-wise union, mask application, and 8 different assign variants.
+The `GB_ewise_slice` method is used by at least 12 different GraphBLAS operations:
+element-wise add, element-wise multiply, element-wise union, mask application,
+and 8 different assign variants.
 
 **Key Quote:**
 > "Lots of algorithms need this slicing method: 8 assign methods, element-wise add, element-wise multiply, element-wise union, and the masker. That's 12 total methods." [02:13:39]
@@ -488,3 +489,4 @@ The ewise_slice method is used by at least 12 different GraphBLAS operations: el
 
 **Final Note [02:14:29]:**
 > "You haven't even seen the matrix multiply yet - it's even trickier than this. It uses the same task struct but builds the task in a totally different way."
+
