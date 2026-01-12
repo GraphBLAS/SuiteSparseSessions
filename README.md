@@ -125,7 +125,7 @@ less.
 
 ### Parallelization Strategies
 - **Coarse vs fine tasks**: Adaptive granularity based on work distribution
-- **EK_slice / EY_slice**: Work partitioning for sparse operations
+- **EK_slice / Ewise_slice**: Work partitioning for sparse operations
 - **P_slice**: Recursive load balancing
 - **Atomic vs non-atomic bucket sort**: Trade-offs in transpose algorithms
 
